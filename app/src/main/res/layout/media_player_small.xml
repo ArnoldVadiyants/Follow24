@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:id="@+id/frameLayout"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/outer_margin">
+
+            <ImageView
+                android:layout_width="@dimen/thread_media_player_picture_width"
+                android:layout_height="@dimen/thread_media_player_picture_height"
+                android:id="@+id/media_player_small_picture_ImageView"
+                tools:background="@drawable/test_canal_icon"
+                android:scaleType="centerCrop"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="12dp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="Small Text"
+                android:id="@+id/media_player_small_title_TextView"
+                android:textStyle="bold"
+                android:layout_marginLeft="@dimen/icon_margin"
+                android:textColor="@color/colorPrimary"
+                android:layout_weight="1"
+                android:ellipsize="marquee"/>
+
+            <ImageButton
+                android:layout_width="@dimen/icon_size"
+                android:layout_height="@dimen/icon_size"
+                android:id="@+id/media_player_small_play_button"
+                android:layout_gravity="center_vertical|right"
+                android:background="@android:color/transparent"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_media_pause"
+                android:padding="8dp"/>
+
+        </LinearLayout>
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/media_player_small_during_seekBar"
+            android:thumb="@drawable/scrubber_control"
+            android:progressTint="@color/colorPrimary"
+            android:layout_weight="1"
+            android:layout_gravity="bottom"
+            android:indeterminate="false"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_marginTop="-8dp"
+            android:layout_marginLeft="-2dp"
+            android:layout_marginRight="-4dp"
+            android:layout_marginBottom="-4dp"/>
+    </LinearLayout>
+
+</FrameLayout>

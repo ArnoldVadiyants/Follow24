@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:paddingBottom="4dip">
+    <item android:drawable="@drawable/ic_add_light" android:width="@dimen/icon_size_small"  android:height="@dimen/icon_size_small" />
+    <item >
+        <shape android:shape="rectangle"  >
+            <solid android:color="@android:color/transparent"  />
+            <stroke
+                android:width="1dip"
+                android:color="@android:color/background_light"/>
+            <corners android:radius="4dip"/>
+
+        </shape>
+    </item>
+</layer-list>

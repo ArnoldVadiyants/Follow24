@@ -1,0 +1,124 @@
+<resources>
+    <integer name="com_vk_sdk_AppId">5458110</integer>
+    <string name="app_name">Follow24</string>
+    <string name="action_settings">Настройки</string>
+    <string name="tab_profile">Мой профиль</string>
+    <string name="catalog">Каталог</string>
+    <string name="filter">Выберите категории</string>
+    <string name="likes">Нравится</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="edit_profile_common">Общее</string>
+    <string name="edit_profile_avatar_user">Фото профиля</string>
+    <string name="edit_profile_avatar_background">Фото обложки</string>
+    <string name="edit_profile_name">Имя</string>
+    <string name="edit_profile_save">Сохранить</string>
+    <string name="tab_stream">Общий поток</string>
+    <string name="playlist_title">Плейлист</string>
+    <string name="news">Новости</string>
+    <string name="articles">Статьи</string>
+    <string name="story">Сюжеты</string>
+    <string name="tab_play_list">Моя лента</string>
+    <string name="tab_player">Проигрыватель</string>
+    <string name="tab_category">Категории</string>
+    <string name="tab_publish">Издания</string>
+    <string name="tab_car_mode">Car mode</string>
+    <string name="car_mode_tab_recent">Недавно прослушанные</string>
+    <string name="car_mode_tab_recommend">Рекомендуем</string>
+    <string name="car_mode_tab_exit">Выход из авто режима</string>
+    <string name="car_mode_tab_exit_land">Выход</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="description">Descr</string>
+    <string name="msg_error">Произошла ошибка</string>
+    <string name="check_internet_con">Невозможно подключиться. Пожалуйста,проверьте параметры подключения к интернету</string>
+    <string name="empty_my_catalog">Вы не подписаны ни на одну категорию.</string>
+    <string name="empty_my_play_list">Ваш плейлист пуст. Чтобы заполнить его подпишитесь на интересующие вас категории или добавьте новости из потока. </string>
+    <string name="subscriptions">Подписки</string>
+    <string name="subscribers">Подписчики</string>
+    <string name="my_subscriptions">Мои подписки</string>
+    <string name="my_likes">Мне нравится</string>
+    <string name="added">Добавленные</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="edit">Редактировать</string>
+    <string name="to_subscript">Подписаться</string>
+    <string name="update_data_success">Данные успешно обновлены</string>
+    <string name="update_data_failure">Ошибка при обновлении</string>
+    <string name="registration_via_email"><b>Зарегистрироваться</b> через <b>e-mail</b> </string>
+    <string name="if_have_registration">Уже есть учетная запись? <b>ВХОД</b></string>
+    <string name="resume_without_registr">Продолжить без регистрации</string>
+    <string name="privacy_policy">Условия|Политика конфиденциальности</string>
+    <string name="loadingAudio">Загрузка аудиозаписей...</string>
+    <string name="loadingAuthor">Загрузка изданий...</string>
+    <string name="loadingNews">Загрузка новостей...</string>
+    <string name="loadingTags">Загрузка категорий...</string>
+    <string name="register_msg">Вы успешно зарегестрированы</string>
+    <string name="logout_msg">Вы уверены, что хотите выйти?</string>
+    <string name="btn_yes">Да</string>
+    <string name="btn_no">Нет</string>
+    <string name="btn_cancel">Отмена</string>
+    <string name="facebook_app_id">1017578851657800</string>
+    <string name="server_client_id">167718035248-tfrr4vub2ca9rvm6avrgvh7ge2s9235l.apps.googleusercontent.com</string>
+    <string name="instructions_thread">В поток попадают все новости от приложения.
+Определенную новость из потока можно послушать нажав на нее, или добавить в плейлист.
+</string>
+    <string name="instructions_catalog">В разделе "Категории" содержатся категории на которые вы можете подписаться. Новости из подписанных категорий попадают сразу в плейлист.
+</string>
+<string name="instructions_lenta">Лента содержит плейлист в который автоматически попадают новости от ваших подписок, а также добавленные новости из общего потока новостей.
+</string>
+<string name="instructions_profile">Мой профиль содержит информацию о Вас (аватар, имя и фамилия), ваши подписки и список понравившихся новостей.</string>
+    <string name="instructions_car_mode">В режиме Car Mode Вам удобнее прослушивать новости во ремя вождения автомобиля.</string>
+    <string name="instructions_welcome">Добро пожаловать в Follow24! \n Слушайте и читайте новости, статьи, блоги от ваших любимых изданий и авторов.
+</string>
+
+
+
+<string name="hint_email">Email</string>
+    <string name="hint_repeat_password">Повторите пароль</string>
+    <string name="hint_password">Пароль</string>
+    <string name="hint_name">Полное имя</string>
+    <string name="btn_login">Войти</string>
+    <string name="btn_register">РЕГИСТРАЦИЯ</string>
+    <string name="btn_link_to_register">Not a member? Sign up now.</string>
+    <string name="btn_link_to_login">Already registered! Login Me.</string>
+    <string name="welcome">Welcome</string>
+    <string name="btn_logout">Выйти</string>
+    <string-array name="listArray">
+        <item>Украина</item>
+        <item>Азейбарджан</item>
+        <item>Армения</item>
+        <item>Туркменистан</item>
+        <item>Афганистан</item>
+        <item>Россия</item>
+        <item>США</item>
+        <item>Италия</item>
+        <item>Испания</item>
+        <item>Португалия</item>
+        <item>Греция</item>
+        <item>Китай</item>
+        <item>Сирия</item>
+        <item>Япония</item>
+        <item>Казахстан</item>
+        <item>Австралия</item>
+        <item>Белоруссия</item>
+    </string-array>
+
+    <string-array name="listValues">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+        <item>10</item>
+        <item>11</item>
+        <item>12</item>
+        <item>13</item>
+        <item>14</item>
+        <item>15</item>
+        <item>16</item>
+        <item>17</item>
+    </string-array>
+</resources>

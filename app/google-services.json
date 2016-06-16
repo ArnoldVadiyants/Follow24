@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "167718035248",
+    "firebase_url": "https://newstee-1322.firebaseio.com",
+    "project_id": "newstee-1322",
+    "storage_bucket": "newstee-1322.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:167718035248:android:6bd01f5d2098e59e",
+        "android_client_info": {
+          "package_name": "com.newstee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "167718035248-tfrr4vub2ca9rvm6avrgvh7ge2s9235l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.newstee",
+            "certificate_hash": "D32917D3D41B8FE299B05C028A896F6055ACC792"
+          }
+        },
+        {
+          "client_id": "167718035248-jbtn53oe1mikuibpd55qc99kg6i424ql.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyq-jB0Bq1Lbe8qL4OjZefHTBARSH_D0g"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "167718035248-jbtn53oe1mikuibpd55qc99kg6i424ql.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

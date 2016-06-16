@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+             android:background="@color/car_mode_back_color"
+              android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/car_mode_progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+    </FrameLayout>
+
+    <include layout="@layout/car_mode_header" android:id="@+id/header"
+             android:layout_width="match_parent"
+             android:layout_height="0dp"
+             android:layout_weight="0.33"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.27"
+        android:layout_marginLeft="@dimen/outer_margin_medium"
+        android:layout_marginRight="@dimen/outer_margin_medium"
+        >
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="@dimen/outer_margin"
+            android:background="@drawable/car_mode_tab_back"
+            android:id="@+id/car_mode_tab_stream">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_big"
+                    android:layout_height="@dimen/icon_size_big"
+                    android:id="@+id/imageView11"
+                    android:layout_gravity="center_horizontal"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/stream_clicked"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAllCaps="true"
+                    android:text="@string/tab_stream"
+                    android:id="@+id/textView13"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/outer_margin_medium"
+                    android:textColor="@color/white"/>
+
+            </LinearLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/car_mode_tab_back"
+            android:layout_marginLeft="@dimen/outer_margin"
+            android:id="@+id/car_mode_tab_playlist">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_height="@dimen/icon_size_big"
+                    android:id="@+id/imageView12"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_width="@dimen/icon_size_big"
+                    android:src="@drawable/play_clicked"
+                    android:scaleType="centerInside"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAllCaps="true"
+                    android:text="@string/tab_play_list"
+                    android:id="@+id/textView14"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/outer_margin_medium"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.27"
+        android:layout_marginRight="@dimen/outer_margin_medium"
+        android:layout_marginLeft="@dimen/outer_margin_medium"
+        android:layout_marginTop="@dimen/outer_margin_medium">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="@dimen/outer_margin"
+            android:background="@drawable/car_mode_tab_back"
+            android:id="@+id/car_mode_tab_recent">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_big"
+                    android:layout_height="@dimen/icon_size_big"
+                    android:id="@+id/imageView13"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/ic_clock"
+                    android:scaleType="centerInside"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAllCaps="true"
+                    android:text="@string/car_mode_tab_recent"
+                    android:id="@+id/textView15"
+                    android:gravity="center_horizontal"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/outer_margin_medium"
+                    android:textColor="@color/white"
+                    android:layout_marginLeft="@dimen/outer_margin_medium"
+                    android:layout_marginRight="@dimen/outer_margin_medium"/>
+            </LinearLayout>
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/car_mode_tab_back"
+            android:layout_marginLeft="@dimen/outer_margin"
+            android:id="@+id/car_mode_tab_recommend">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:id="@+id/imageView14"
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/ic_star"
+                    android:scaleType="centerInside"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textAllCaps="true"
+                    android:text="@string/car_mode_tab_recommend"
+                    android:id="@+id/textView16"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="@dimen/outer_margin_medium"
+                    android:textColor="@color/white"/>
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:id="@+id/car_mode_tab_exit"
+        android:layout_weight="0.12"
+        android:layout_marginLeft="@dimen/outer_margin_medium"
+        android:layout_marginRight="@dimen/outer_margin_medium"
+        android:layout_marginTop="@dimen/outer_margin_medium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textAllCaps="true"
+        android:text="@string/car_mode_tab_exit"
+        android:textColor="@color/white"
+        android:background="@drawable/car_mode_tab_exit"
+        android:layout_marginBottom="@dimen/outer_margin_medium"/>
+
+</LinearLayout>

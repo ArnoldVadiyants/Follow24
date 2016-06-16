@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <include layout="@layout/media_player_small" android:id="@+id/canal_media_player"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_alignParentTop="true"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/outer_margin_big"
+        android:layout_marginRight="@dimen/outer_margin_big"
+        android:layout_marginTop="@dimen/outer_margin_medium"
+        android:layout_marginBottom="@dimen/outer_margin_medium">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:text="Корресподент.нет"
+
+            android:id="@+id/canal_canal_titleTextView"
+            android:layout_gravity="center_vertical"/>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+        </FrameLayout>
+
+        <ImageButton
+            android:layout_width="@dimen/icon_size_small"
+            android:layout_height="@dimen/icon_size_small"
+            android:id="@+id/canal_exit_imageButton"
+            android:layout_gravity="left|center_vertical"
+            android:background="@android:color/transparent"
+            android:src="@drawable/exit_image_dark"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/canal_canal_picture_imageView"
+        android:background="@android:color/transparent"
+        android:src="@drawable/test_canal_icon"
+        android:scaleType="fitXY"
+        android:layout_marginLeft="@dimen/outer_margin_big"
+        android:layout_marginRight="@dimen/outer_margin_big"/>
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/outer_margin_big"
+        android:layout_marginRight="@dimen/outer_margin_big"
+        android:layout_marginTop="@dimen/outer_margin_medium"
+        android:layout_marginBottom="@dimen/outer_margin_medium">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="234"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textAllCaps="true"
+                android:textColor="@color/colorPrimary"
+                android:id="@+id/canal_subscriptions_sum_textView"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscribers"
+                android:id="@+id/textView5"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textAllCaps="true"
+                android:textColor="@color/colorPrimary"
+                android:layout_marginTop="@dimen/outer_margin"/>
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+        </FrameLayout>
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/icon_size"
+            android:text="@string/to_subscript"
+            android:id="@+id/canal_to_subscript_button"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:background="@drawable/button_shape"
+            android:layout_gravity="center_vertical"/>
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/outer_margin_big"
+        android:layout_marginRight="@dimen/outer_margin_big"
+        android:layout_marginTop="@dimen/outer_margin_medium"
+        android:layout_marginBottom="@dimen/outer_margin_medium"
+        android:id="@+id/canal_news_container">
+    </FrameLayout>
+
+</LinearLayout>

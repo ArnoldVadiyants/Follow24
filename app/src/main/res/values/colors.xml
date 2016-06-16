@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#1D2C30</color>
+    <color name="colorPrimaryDark">#003333</color>
+
+ <!--   <color name="colorAccent">#0066ff</color>-->
+    <color name="colorAccent">#ff0099cc</color>
+    <color name="colorBackground">#F2F2F2</color>
+
+    <color name="bg_login">#26ae90</color>
+    <color name="bg_register">#2e3237</color>
+    <color name="bg_main">#0066ff</color>
+    <color name="white">#ffffff</color>
+    <color name="input_login">#222222</color>
+    <color name="input_login_hint">#999999</color>
+    <color name="input_register">#888888</color>
+    <color name="input_register_bg">#3b4148</color>
+    <color name="input_register_hint">#5e6266</color>
+    <color name="btn_login">#26ae90</color>
+    <color name="btn_login_bg">#eceef1</color>
+    <color name="lbl_name">#333333</color>
+    <color name="btn_logut_bg">#ff6861</color>
+    <color name ="car_mode_back_color">#121A1C</color>
+    <color name = "edit_profile_header">#0066ff</color>
+
+</resources>

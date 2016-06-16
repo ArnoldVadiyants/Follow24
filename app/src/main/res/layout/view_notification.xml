@@ -1,0 +1,102 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white">
+
+    <ImageView
+        android:id="@+id/large_icon"
+        android:layout_width="@dimen/notification_expanded_height"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:src="@mipmap/ic_launcher"/>
+    <LinearLayout
+        android:id="@+id/buttons_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@id/large_icon"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        android:layout_alignRight="@+id/notify_text"
+        android:layout_alignEnd="@+id/notify_text">
+
+        <ImageButton
+            android:id="@+id/ib_rewind"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/notification_button_height"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_media_prev"
+            android:paddingTop="8dp"
+            android:paddingLeft="24dp"
+            android:paddingBottom="8dp"/>
+
+        <ImageButton
+            android:id="@+id/ib_play_pause"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/notification_button_height"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_media_pause"
+            android:paddingTop="4dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingBottom="4dp"/>
+
+        <ImageButton
+            android:id="@+id/ib_fast_forward"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="@dimen/notification_button_height"
+            android:scaleType="centerInside"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_media_next"
+            android:paddingRight="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"/>
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/destroy_notify_button"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_height="@dimen/icon_size_big"
+        android:background="@android:color/transparent"
+        android:src="@drawable/exit_image_dark"
+        android:scaleType="centerInside"
+        android:paddingTop="4dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"
+        android:layout_width="@dimen/icon_size_medium"
+        android:paddingBottom="20dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minLines="1"
+        android:maxLines="1"
+        android:id="@+id/notify_text"
+        android:layout_alignParentTop="true"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:layout_above="@+id/buttons_row"
+        android:layout_toLeftOf="@+id/destroy_notify_button"
+        android:layout_toRightOf="@+id/large_icon"
+        android:textColor="@color/colorPrimary"
+        android:text="xdfh dfhs sdh h rht rdth drth dj werfgwergwrgwerh eryry"
+        android:layout_marginLeft="@dimen/outer_margin_medium"
+        android:layout_marginTop="@dimen/outer_margin_medium"
+        android:singleLine="false"
+        android:selectAllOnFocus="false"
+        android:scrollHorizontally="false"
+        android:outlineProvider="background"
+        android:keepScreenOn="false"
+        android:freezesText="false"
+        android:ellipsize="end"/>
+
+</RelativeLayout>

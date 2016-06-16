@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <!--include layout="@layout/media_player_small" android:id="@+id/thread_media_player"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_alignParentTop="true"!-->
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:layout_marginLeft="@dimen/outer_margin_big"
+        android:layout_marginRight="@dimen/outer_margin_medium"
+        android:layout_marginTop="@dimen/outer_margin_medium">
+
+        <ImageView
+            android:layout_width="@dimen/icon_size_medium"
+            android:layout_height="@dimen/icon_size_medium"
+            android:id="@+id/imageView3"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/stream"
+            android:scaleType="centerInside"/>
+
+        <TextView
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textAllCaps="true"
+            android:textColor="@color/colorPrimary"
+            android:text="@string/tab_stream"
+            android:id="@+id/textView2"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/icon_margin"
+            android:layout_weight="1"
+            android:textStyle="bold"/>
+
+        <include layout="@layout/start_button" android:id="@+id/thread_start_button"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center_vertical"
+                 android:layout_marginRight="@dimen/outer_margin_big"></include>
+
+        <ImageButton
+            android:layout_width="@dimen/icon_size_big"
+            android:layout_height="@dimen/icon_size_medium"
+            android:id="@+id/filter_imageButton"
+
+            android:background="@android:color/transparent"
+            android:src="@drawable/filter_button_back"
+            android:scaleType="centerInside"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:layout_gravity="center_vertical"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/thread_tabs"
+            style="@style/MyCustomTabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            app:tabBackground="@android:color/transparent"
+            app:tabIndicatorColor="@color/colorPrimary"
+            app:tabIndicatorHeight="4dp"
+            />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary">
+        </FrameLayout>
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/thread_container"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/outer_margin"
+        android:layout_marginBottom="@dimen/outer_margin"
+        android:layout_marginLeft="@dimen/outer_margin"
+        android:layout_marginRight="@dimen/outer_margin"/>
+
+</LinearLayout>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:background="@color/car_mode_back_color">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/car_mode_header_title"
+        android:src="@drawable/logo_title"
+        android:layout_gravity="center"
+        android:layout_weight="0"
+        android:visibility="visible"
+        android:scaleType="centerInside"
+        android:padding="48dp"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_margin="@dimen/outer_margin_medium"
+        android:id="@+id/car_mode_header_player"
+        android:layout_gravity="center_horizontal|bottom">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3">
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="New Text"
+            android:id="@+id/car_mode_header_title_canal"
+            android:layout_gravity="center_horizontal"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/white"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="New Text"
+            android:id="@+id/car_mode_header_title_news"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/outer_margin_medium"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white"/>
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/car_mode_header_during_seekBar"
+            android:layout_marginTop="@dimen/outer_margin_big"
+            style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
+            android:progressTint="@android:color/white"
+            android:thumb="@drawable/scrubber_control"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5"
+            >
+        </FrameLayout>
+
+        <ImageButton
+            android:layout_width="64dp"
+            android:layout_height="42dp"
+            android:id="@+id/car_mode_header_play"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/button_shape_car_mode_light"
+            android:src="@drawable/ic_media_play_car_mode"
+            android:scaleType="centerInside"
+            android:padding="10dp"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2">
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>
