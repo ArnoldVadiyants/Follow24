@@ -11,6 +11,10 @@ import java.util.List;
 public class PlayList {
 
     private List<News>mNewsList = new ArrayList<>();
+
+
+
+    private String mListTitle = "";
     private News mCurrent;
 
     public List<News> getNewsList() {
@@ -44,8 +48,12 @@ public class PlayList {
         }
         return null;
     }
-    public void setNewsList(List<News> mNewsList) {
+    public String getListTitle() {
+        return mListTitle;
+    }
+    public void setNewsList(List<News> mNewsList,String listTitle) {
         this.mNewsList = mNewsList;
+        this.mListTitle = listTitle;
     }
     public boolean contains(News news)
     {

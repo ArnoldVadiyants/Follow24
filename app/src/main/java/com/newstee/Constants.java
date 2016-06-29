@@ -1,5 +1,7 @@
 package com.newstee;
 
+import com.vk.sdk.VKScope;
+
 /**
  * Created by Arnold on 24.02.2016.
  */
@@ -19,10 +21,13 @@ public class Constants {
     public final static String ARGUMENT_NEWS_ADDED = "added";
     public final static String ARGUMENT_NEWS_LIKED = "liked";
     public final static String ARGUMENT_NEWS_BY_STORY = "by_story";
+    public final static String ARGUMENT_NEWS_BY_TAG= "by_tag";
     public final static String ARGUMENT_NEWS_BY_CANAL = "by_canal";
     public final static String ARGUMENT_NEWS_RECOMMENDED = "recommended";
     public final static String ARGUMENT_NEWS_RECENT = "recent";
     public final static String ARGUMENT_PLAYLIST = "playlist";
+    public static final String[] SCOPE = new String[]{VKScope.WALL,VKScope.PHOTOS
+    };
 
 
 

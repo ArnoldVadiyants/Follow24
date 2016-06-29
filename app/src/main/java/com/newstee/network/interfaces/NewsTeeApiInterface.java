@@ -35,8 +35,9 @@ public interface NewsTeeApiInterface {
     @GET("dispatcher.php?command=get_recommended")
     Call<DataIds> getRecommended();
 
-    @GET("dispatcher.php?command=get_news")
-    Call<DataNews> getNews();
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=get_news")
+    Call<DataNews> getNews(@Field("maxPerPage") int maxPerPage, @Field("page") int page);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")

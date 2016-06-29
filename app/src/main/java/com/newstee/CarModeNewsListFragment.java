@@ -9,15 +9,16 @@ import android.widget.TextView;
  * Created by Arnold on 17.02.2016.
  */
 public class CarModeNewsListFragment extends NewsListFragment {
-    public static NewsListFragment newInstance(String idStory) {
-        NewsListFragment fragment = new CarModeNewsListFragment();
+    public static NewsListFragment newInstance(String argument, String category, String idForArgument) {
+        NewsListFragment fragment = new NewsThreadListFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CATEGORY, Constants.CATEGORY_ALL);
-        args.putString(ARG_PARAMETER,Constants.ARGUMENT_NEWS_BY_STORY);
-        args.putString(ARG_STORY,idStory);
+        args.putString(ARG_CATEGORY, category);
+        args.putString(ARG_PARAMETER, argument);
+        args.putString(ARG_NEWS_BY_ID, idForArgument);
         fragment.setArguments(args);
         return fragment;
     }
+
     public static NewsListFragment newInstance(String argument,String category) {
         NewsListFragment fragment = new CarModeNewsListFragment();
         Bundle args = new Bundle();

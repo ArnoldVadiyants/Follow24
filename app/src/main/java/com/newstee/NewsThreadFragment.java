@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.newstee.helper.NewsTeeInstructionsDialogFragment;
 import com.newstee.model.data.News;
@@ -81,7 +80,7 @@ private NewsThreadListFragment newsFragment;
         }
 
         FragmentManager fm = getActivity().getSupportFragmentManager();
-        NewsTeeInstructionsDialogFragment dialog = NewsTeeInstructionsDialogFragment.newInstance(R.drawable.stream,getResources().getString(R.string.tab_stream),getResources().getString(R.string.instructions_thread),false);
+        NewsTeeInstructionsDialogFragment dialog = NewsTeeInstructionsDialogFragment.newInstance(R.drawable.stream,getResources().getString(R.string.tab_stream),getResources().getString(R.string.instructions_thread),true);
      //  dialog.get
 
         dialog.show(fm,NewsTeeInstructionsDialogFragment.DIALOG_INSTRUCTIONS);
@@ -134,7 +133,7 @@ private NewsThreadListFragment newsFragment;
                 {
                     return;
                 }
-                    PlayList.getInstance().setNewsList(newsList);
+                    PlayList.getInstance().setNewsList(newsList,getString(R.string.tab_stream));
                 Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
                 i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsList.get(0).getId());
                 startActivity(i);
@@ -228,9 +227,6 @@ private NewsThreadListFragment newsFragment;
 
                 AlertDialog choicesDialog = choicesBuilder.create();
                 choicesDialog.show();
-
-
-                Toast.makeText(getActivity(), "filter clicked",Toast.LENGTH_SHORT).show();
 
         }});
      //   mediaPlayer = rootView.findViewById(R.id.thread_media_player);
@@ -438,11 +434,8 @@ private NewsThreadListFragment newsFragment;
         super.setUserVisibleHint(isVisibleToUser);
         if(isVisibleToUser)
         {
-            ++isVisibleCount;
-            if(isVisibleCount>1)
-            {
+
                 showDialog();
-            }
 
             Log.d("@@@@ " + TAG, isVisibleToUser+ "");
            /* newsFragment.setUserVisibleHint(true);

@@ -61,70 +61,87 @@
             android:layout_marginRight="@dimen/icon_margin"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:id="@+id/news_content_layout"
-        android:layout_marginTop="@dimen/outer_margin_big"
-        android:layout_weight="0"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="@dimen/picture_size"
-            android:layout_height="@dimen/picture_width"
-            android:id="@+id/canal_imageView"
-            android:background="@android:color/transparent"
-            android:scaleType="centerCrop"
-            tools:src="@drawable/test_canal_icon"
-            android:layout_gravity="center_vertical"/>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                tools:text="Republican presidential front-runner Donald Trump has accused China of &quot;raping&quot; the US, in renewed criticism of China&apos;s trade policy."
-                android:id="@+id/title_TextView"
-                android:textColor="@color/colorPrimary"
-                android:textAllCaps="false"
-                android:layout_marginLeft="@dimen/outer_margin_medium"
-                android:textStyle="bold"
-                android:layout_weight="1"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:id="@+id/date_TextView"
-                android:textColor="@color/colorPrimary"
-                android:textAllCaps="true"
-                android:layout_marginLeft="@dimen/outer_margin_medium"
-                android:layout_marginTop="@dimen/outer_margin_medium"
-               tools:text="25.12.2016 , 16:03"
-                android:layout_weight="0"/>
-        </LinearLayout>
-
-    </LinearLayout>
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/scrollView"
         android:layout_weight="1"
         android:layout_marginTop="@dimen/outer_margin_big">
-
-        <TextView
+        <!--  <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="Small Text"
+            android:textColor="@color/colorPrimary"
             android:id="@+id/media_controller_new_content_textView"
-            android:layout_marginTop="@dimen/outer_margin_big"
-            />
+            />-->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:id="@+id/news_content_layout"
+                android:layout_weight="0"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/picture_size"
+                    android:layout_height="@dimen/picture_width"
+                    android:id="@+id/canal_imageView"
+                    android:background="@android:color/transparent"
+                    android:scaleType="centerCrop"
+                    tools:src="@drawable/test_canal_icon"
+                    android:layout_gravity="center_vertical"/>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:id="@+id/scrollView3">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?android:attr/textAppearanceSmall"
+                            tools:text="Republican presidential front-runner Donald Trump has accused China of &quot;raping&quot; the US, in renewed criticism of China&apos;s trade policy."
+                            android:id="@+id/title_TextView"
+                            android:textColor="@color/colorPrimary"
+                            android:textAllCaps="false"
+                            android:layout_marginLeft="@dimen/outer_margin_medium"
+                            android:textStyle="bold"
+                        />
+                    </ScrollView>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:id="@+id/date_TextView"
+                        android:textColor="@color/colorPrimary"
+                        android:textAllCaps="true"
+                        android:layout_marginLeft="@dimen/outer_margin_medium"
+                        android:layout_marginTop="@dimen/outer_margin_medium"
+                       tools:text="25.12.2016 , 16:03"
+                        android:layout_weight="0"/>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <WebView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/media_controller_new_content_textView"
+                android:layout_marginTop="@dimen/outer_margin"
+                android:layout_marginLeft="-8dp"/>
+        </LinearLayout>
     </ScrollView>
 
     <LinearLayout
@@ -220,7 +237,7 @@
         android:gravity="center"
         android:orientation="horizontal"
         android:layout_weight="0"
-        android:layout_marginTop="@dimen/outer_margin_big">
+        android:layout_marginTop="@dimen/outer_margin_medium">
 
         <FrameLayout
             android:layout_width="0dp"

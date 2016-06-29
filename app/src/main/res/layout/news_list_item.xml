@@ -29,18 +29,28 @@
                     android:id="@+id/canal_icon_ImageVew"
                     android:layout_gravity="left|center_vertical"
                     tools:src="@drawable/bbc_news_logo_cyrcle"
+                    android:scaleType="centerInside"
                     />
 
-                <TextView
+                <LinearLayout
+                    android:orientation="vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="National Geographic"
-                    android:textAllCaps="true"
-                    android:id="@+id/canal_title_TextView"
                     android:layout_weight="1"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/icon_margin"
-                    android:layout_marginRight="@dimen/icon_margin"/>
+                    android:layout_gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="National Geographic"
+                        android:textAllCaps="true"
+                        android:id="@+id/canal_title_TextView"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="@dimen/icon_margin"
+                        android:layout_marginRight="@dimen/icon_margin"
+                        android:textColor="@color/colorPrimary"/>
+
+                </LinearLayout>
 
                 <ImageView
                     android:layout_width="@dimen/icon_size_small"
@@ -62,16 +72,6 @@
                     android:textColor="@android:color/holo_red_dark"
                     android:layout_marginRight="@dimen/icon_margin"
                     android:layout_marginLeft="@dimen/icon_margin"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="21:00"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:id="@+id/news_date_TextView"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/icon_margin"
-                    android:layout_marginRight="@dimen/icon_margin"/>
 
                 <FrameLayout
                     android:layout_width="@dimen/icon_size"
@@ -103,16 +103,38 @@
                     android:scaleType="centerCrop"
                   />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:maxHeight="100dp"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    tools:text="Blablalba blabla BLalb Blablalba blabla BLalbaBlablalba blabla BLalbaBlablalba blabla BLalbaBlablalba blabla BLalbaBlablalba blabla BLalbaa"
-                    android:id="@+id/news_description_textView"
-                    android:layout_weight="1"
-                    android:layout_gravity="top"
-                    android:layout_marginLeft="@dimen/icon_margin"/>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:baselineAligned="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/news_description_textView"
+                        android:textColor="@color/colorPrimary"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_weight="1"
+                        android:layout_gravity="top"
+                        android:layout_marginLeft="@dimen/icon_margin"
+                        android:focusableInTouchMode="false"
+                        android:text="Bla bla bla bla lba bla bla bla bla bla bla bla bla bla  bla bla bla bla bla blabla bl bla bla bla bla bla  bla bla bla bla bla bla bla bla bla bla bla blablaa bla bla"
+                        android:layout_marginTop="-4dp"
+                        android:singleLine="false"
+                        android:ellipsize="end"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="21:00"
+                        android:id="@+id/news_date_TextView"
+                        android:layout_marginLeft="@dimen/icon_margin"
+                        android:layout_marginRight="6dp"
+                        android:textSize="12sp"
+                        android:layout_marginTop="@dimen/outer_margin"
+                        android:layout_gravity="bottom|right"/>
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -120,7 +142,7 @@
 
     <ImageButton
         android:layout_width="@dimen/icon_size"
-        android:layout_height="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size_big"
         android:id="@+id/news_status_ImageButton"
         android:cropToPadding="false"
         android:adjustViewBounds="false"
@@ -136,8 +158,9 @@
         android:layout_marginRight="@dimen/outer_margin"
         android:paddingLeft="6dp"
         android:paddingRight="6dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp"/>
+        android:paddingTop="6dp"
+        android:paddingBottom="12dp"
+        android:layout_marginBottom="-4dp"/>
 
 
 </FrameLayout>

@@ -4,8 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,14 +20,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.share.model.ShareLinkContent;
-import com.facebook.share.widget.ShareDialog;
 import com.newstee.MusicService.MusicBinder;
 import com.newstee.helper.InternetHelper;
 import com.newstee.model.data.DataPost;
@@ -40,29 +44,638 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.sromku.simple.fb.SimpleFacebook;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
-import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.photo.VKImageParameters;
+import com.vk.sdk.api.photo.VKUploadImage;
 import com.vk.sdk.dialogs.VKShareDialog;
 import com.vk.sdk.dialogs.VKShareDialogBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.vk.sdk.VKSdk.login;
-
 /**
  * Created by Arnold on 17.02.2016.
  */
 public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarChangeListener {
-    private static String vkTokenKey = "VK_ACCESS_TOKEN";
-    private static String[] vkScope = new String[]{VKScope.WALL};
-
     private final static String TAG = "MediaPlayerFragment";
+    private final static String TEST_HTML = "<html>\n" +
+            "<head>\n" +
+            "\t<base href=\"https://shop.football.kharkov.ua/\"/>\n" +
+            "\t<title>Мяч для футбола Select Brilliant Super</title>\n" +
+            "\t\n" +
+            "\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
+            "\t<meta name=\"description\" content=\"Мяч для футбола Select Brilliant Super  одобрен международной федерацией футбола и имеет соответствующий сертификат (FIFA Approved), позволяющий проводить этим мячом крупные международные и местные соревнования.\" />\n" +
+            "\t<meta name=\"keywords\"    content=\"Мяч для футбола Select Brilliant Super, Select Sport, Мячи для футбола\" />\n" +
+            "\t<meta name=\"viewport\" content=\"width=1024\"/>\n" +
+            "\t\n" +
+            "\t<link href=\"design/shop.football/css/style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n" +
+            "\t<link href=\"design/shop.football/images/favicon.ico\" rel=\"icon\"          type=\"image/x-icon\"/>\n" +
+            "\t<link href=\"design/shop.football/images/favicon.ico\" rel=\"shortcut icon\" type=\"image/x-icon\"/>\n" +
+            "\t\n" +
+            "\t<script src=\"js/jquery/jquery.js\"  type=\"text/javascript\"></script>\n" +
+            "\t\n" +
+            "\t\t\n" +
+            "\t<script type=\"text/javascript\" src=\"js/fancybox/jquery.fancybox-1.3.4.pack.js\"></script>\n" +
+            "\t<link rel=\"stylesheet\" href=\"js/fancybox/jquery.fancybox-1.3.4.css\" type=\"text/css\" media=\"screen\" />\n" +
+            "        <script type=\"text/javascript\" src=\"design/shop.football/js/3dswift.js\"></script>\n" +
+            "\t<script type=\"text/javascript\" src=\"js/ctrlnavigate.js\"></script>           \n" +
+            "\t\n" +
+            "        <script src=\"//code.jquery.com/ui/1.10.3/jquery-ui.js\"></script>\n" +
+            "\t<script src=\"design/shop.football/js/ajax_cart.js\"></script>\n" +
+            "\t\n" +
+            "\t<script src=\"/js/baloon/js/baloon.js\" type=\"text/javascript\"></script>\n" +
+            "\t<link   href=\"/js/baloon/css/baloon.css\" rel=\"stylesheet\" type=\"text/css\" /> \n" +
+            "        \n" +
+            "\t<script src=\"/js/jquery.selectBoxIt.min.js\" type=\"text/javascript\"></script>\n" +
+            "\n" +
+            "\t\n" +
+            "\t\n" +
+            "\t<script src=\"js/autocomplete/jquery.autocomplete-min.js\" type=\"text/javascript\"></script>\n" +
+            "\t<style>\n" +
+            "\t.autocomplete-w1 { position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }\n" +
+            "\t.autocomplete { border:1px solid #999; background:#FFF; cursor:default; text-align:left; overflow-x:auto;  overflow-y: auto; margin:-6px 6px 6px -6px; /* IE6 specific: */ _height:350px;  _margin:0; _overflow-x:hidden; }\n" +
+            "\t.autocomplete .selected { background:#F0F0F0; }\n" +
+            "\t.autocomplete div { padding:2px 5px; white-space:nowrap; }\n" +
+            "\t.autocomplete strong { font-weight:normal; color:#3399FF; }\n" +
+            "\t</style>\t\n" +
+            "\t<script>\n" +
+            "\t$(function() {\n" +
+            "                //Меняем дропдаун на стилизованный\n" +
+            "\t\t$(\"select\").selectBoxIt();\n" +
+            "                \n" +
+            "                $(\"select[name='variant']\").on('change', function(event){\n" +
+            "                  $(this).find(\"option[value='\" + $(this).val() + \"']\").attr('selected', 'true');\n" +
+            "                  $(this).find(\"option[value='\" + $(this).val() + \"']\").siblings().removeAttr('selected');\n" +
+            "                  $(\"input[name='variant'][type='hidden']\").val($(this).val());\n" +
+            "                  console.log($(this).val());\n" +
+            "                });\n" +
+            "\t\t\n" +
+            "\n" +
+            "\t\t//  Автозаполнитель поиска\n" +
+            "\t\t$(\".input_search\").autocomplete({\n" +
+            "\t\t\tserviceUrl:'ajax/search_products.php',\n" +
+            "\t\t\tminChars:1,\n" +
+            "\t\t\tnoCache: false, \n" +
+            "\t\t\tonSelect:\n" +
+            "\t\t\t\tfunction(value, data){\n" +
+            "\t\t\t\t\t $(\".input_search\").closest('form').submit();\n" +
+            "\t\t\t\t},\n" +
+            "\t\t\tfnFormatResult:\n" +
+            "\t\t\t\tfunction(value, data, currentValue){\n" +
+            "\t\t\t\t\tvar reEscape = new RegExp('(\\\\' + ['/', '.', '*', '+', '?', '|', '(', ')', '[', ']', '{', '}', '\\\\'].join('|\\\\') + ')', 'g');\n" +
+            "\t\t\t\t\tvar pattern = '(' + currentValue.replace(reEscape, '\\\\$1') + ')';\n" +
+            "\t  \t\t\t\treturn (data.image?\"<img align=absmiddle src='\"+data.image+\"'> \":'') + value.replace(new RegExp(pattern, 'gi'), '<strong>$1<\\/strong>');\n" +
+            "\t\t\t\t}\t\n" +
+            "\t\t});\n" +
+            "\t});\n" +
+            "\t</script>\n" +
+            "        <script type=\"text/javascript\">\n" +
+            "\n" +
+            "  var _gaq = _gaq || [];\n" +
+            "  _gaq.push(['_setAccount', 'UA-2028404-9']);\n" +
+            "  _gaq.push(['_trackPageview']);\n" +
+            "\n" +
+            "  (function() {\n" +
+            "    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;\n" +
+            "    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';\n" +
+            "    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);\n" +
+            "  })();\n" +
+            "  \n" +
+            "\n" +
+            "</script>\n" +
+            "\t\n" +
+            "\t\t\n" +
+            "\t\t\t\n" +
+            "</head>\n" +
+            "<body>\n" +
+            "\n" +
+            "\n" +
+            "\t<!-- Верхняя строка -->\n" +
+            "\t<div id=\"top_background\">\n" +
+            "\t<div id=\"top\">\n" +
+            "\t\n" +
+            "\t\t<!-- Меню -->\n" +
+            "\t\t<ul id=\"menu\">\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"127\" href=\"\">Каталог</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"121\" href=\"oplata\">Оплата</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"122\" href=\"delivery\">Доставка</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"161\" href=\"Справка\">Справка</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"163\" href=\"galereya\">Галерея</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"164\" href=\"blog\">Блог</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li >\n" +
+            "\t\t\t\t\t<a data-page=\"123\" href=\"contacts\">Контакты</a>\n" +
+            "\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t<!-- Меню (The End) -->\n" +
+            "\t\n" +
+            "\t\t<!-- Корзина -->\n" +
+            "\t\t<div id=\"cart_informer\">\n" +
+            "\t\t\t\n" +
+            "\tКорзина пуста\n" +
+            "\t\t</div>\n" +
+            "\t\t<!-- Корзина (The End)-->\n" +
+            "\n" +
+            "\t\t<!-- Вход пользователя -->\n" +
+            "\t\t<div id=\"account\">\n" +
+            "\t\t\t\t\t\t\t<a id=\"register\" href=\"user/register\">Регистрация</a>\n" +
+            "\t\t\t\t<a id=\"login\" href=\"user/login\">Вход</a>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\t<!-- Вход пользователя (The End)-->\n" +
+            "\n" +
+            "\t</div>\n" +
+            "\t</div>\n" +
+            "\t<!-- Верхняя строка (The End)-->\n" +
+            "\t\n" +
+            "\t\n" +
+            "\t<!-- Шапка -->\n" +
+            "\t<div id=\"header\">\n" +
+            "\t\t<div id=\"logo\">\n" +
+            "\t\t\t<a href=\"/\"><img src=\"design/shop.football/images/vector_logo_shop_final.png\" title=\"Футбольный магазин\" alt=\"Футбольный магазин\"/></a>\n" +
+            "\t\t</div>\t\n" +
+            "\t\t<div id=\"contact\">\n" +
+            "\t\t\t<div id=\"address\">Харьков, ул. Полевая 44 (2 этаж)</div>\n" +
+            "                        <span id=\"phone\">(057)737-95-65, (050)144-58-01, (098)703-444-8</span>\n" +
+            "\t\t</div>\t\n" +
+            "\t</div>\n" +
+            "\t<!-- Шапка (The End)--> \n" +
+            "\n" +
+            "\n" +
+            "\t<!-- Вся страница --> \n" +
+            "\t<div id=\"main\">\n" +
+            "\t\n" +
+            "\t\t<!-- Основная часть --> \n" +
+            "\t\t<div id=\"content\">\n" +
+            "\t\t\t<!-- Хлебные крошки /-->\n" +
+            "<div id=\"path\">\n" +
+            "\t<a href=\"./\">Главная</a>\n" +
+            "\t\t→ <a href=\"catalog/Футбольные_мячи\">Футбольные мячи</a>\n" +
+            "\t\t→ <a href=\"catalog/Мячи_для_футбола\">Мячи для футбола</a>\n" +
+            "\t\t\t→ <a href=\"catalog/Мячи_для_футбола/Select_Sport\">Select Sport</a>\n" +
+            "\t\t→  Мяч для футбола Select Brilliant Super                \n" +
+            "</div>\n" +
+            "<!-- Хлебные крошки #End /-->\n" +
+            "\n" +
+            "<h1 data-product=\"1195\">Мяч для футбола Select Brilliant Super</h1>\n" +
+            "\n" +
+            "<div class=\"product\">\n" +
+            "\n" +
+            "\t<!-- Большое фото -->\n" +
+            "\t\t<div class=\"image\">\n" +
+            "\t\t<a href=\"https://shop.football.kharkov.ua/files/products/FnpH88R9oAAd0uBvVsdTJi0m6T1_u6tNad5IVRKbOWA.800x600w.jpg?02b4890e5cf788ae54fd404fad45cad6\" class=\"zoom\" data-rel=\"group\"><img src=\"https://shop.football.kharkov.ua/files/products/FnpH88R9oAAd0uBvVsdTJi0m6T1_u6tNad5IVRKbOWA.300x300.jpg?a07a970be5153fba9c4fadd8f0d0755f\" alt=\"\" /></a>\n" +
+            "\t</div>\n" +
+            "\t\t<!-- Большое фото (The End)-->\n" +
+            "\n" +
+            "\t<!-- Описание товара -->\n" +
+            "\t<div class=\"description\">\n" +
+            "\t\t\t<!-- Выбор варианта товара -->\n" +
+            "\t\t<form class=\"variants\" action=\"/cart\">\n" +
+            "\t\t\t<table>\n" +
+            "\t\t\t<tr class=\"variant\">\n" +
+            "\t\t\t\t<td>\n" +
+            "\t\t\t\t                                  \n" +
+            "                                 <span class=\"single_price\"  style=\"display: block;margin-bottom: 5px;float: left;margin-right: 10px;\">2 040,00 грн</span>\n" +
+            "\t\t\t\t                                  <input type=\"hidden\" name=\"variant\" value=\"13510\" /> \t\n" +
+            "                                 <div style=\"clear:both;\"></div>\n" +
+            "                                 <select name=\"variant\">\n" +
+            "                                                                          <option value=\"13510\" id=\"discounted_13510\"></option>\n" +
+            "                                           \n" +
+            "                                   </select> \n" +
+            "\n" +
+            "                                 \n" +
+            "\t\t\t</tr>\n" +
+            "\t\t\t</table>\n" +
+            "                                                \n" +
+            "\t\t\t<input type=\"submit\" class=\"button\" value=\"в корзину\" data-result-text=\"добавлено\"/>\n" +
+            "\t\t</form>\n" +
+            "\t\t<!-- Выбор варианта товара (The End) -->\t\t\t\n" +
+            "         <div style=\"clear:both;\"></div>\t\n" +
+            "\t\t<p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\" id=\"docs-internal-guid-6a484bd7-9fa8-7e23-b65c-b5ec21e30fcd\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Специально изготовленная подоснова покрышки мяча <strong>Select Brilliant Super</strong> из тонко сплетенного хлопка и полиэстера обеспечивает мячу новую чувствительность и игровой контроль. </span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Ультра- тонкий и очень эластичный микрофибр обеспечивает ощущение, что мяч значительно мягче и его легче ударить, чем раньше. </span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Снаружи <strong>Brilliant</strong> оснащен совершенно новой и чрезвычайно прочный слоем материала PU (полиуретан) с совершенно новой текстурой поверхности.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Красивый дизайн с переливающейся текстурированной поверхностью.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Изготовлен из дорогой и износостойкой синтетической кожи - полиуретана, толщиной 1,9 мм.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Подкладочные слои пропитаны водооталкивающим составом, что препятствует намоканию и увеличению веса при игре в сырую погоду.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Идеально сбалансированная латексная, безшовная камера с двойным бутиловым ниппелем делает мяч контролируемым, с предсказуемым отскоком, правильной траекторией полета и мгновенным восстановлением формы, после удара.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><strong><span style=\"font-size: 14.6667px; font-family: Arial; color: #000000; background-color: transparent; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></strong></p><p><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Мяч для футбола Select Brilliant Super</strong> одобрен международной федерацией футбола и имеет соответствующий сертификат (FIFA Approved), позволяющий проводить этим мячом крупные международные и местные соревнования.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\">Футбольный мяч <strong>Select Brillant Super</strong> подходит для игры на натуральном и искусственном поле в любую погоду.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Использование:</strong> Клубные матча и тренировки</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Камера:</strong> латексная, патентованная технология \"Zero-wing\" с двойным бутиловым клапаном.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Материал:</strong> MFPUS 2000 - износостойкий полиуретан c волокнами микрофибры и текстурированной поверхностью, сводит к минимуму сопротивление воздуха для стабильного полета мяча.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Размер:</strong> 5.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Вес:</strong> 435 гр.</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><strong><span style=\"font-size: 14.6667px; font-family: Arial; color: #000000; background-color: transparent; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></strong></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Производитель:</strong> Пакистан</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Компания:</strong> Select (Дания)</span></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><strong><span style=\"font-size: 14.6667px; font-family: Arial; color: #000000; background-color: transparent; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></strong></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><strong>Гарантия:</strong> 1 месяц (на швы и клапан)</span></p><p></p><p dir=\"ltr\" style=\"line-height: 1.38; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-size: 14.666666666666666px; font-family: Arial; color: #000000; background-color: transparent; font-weight: 400; font-style: normal; font-variant: normal; text-decoration: none; vertical-align: baseline;\"><br /></span></p>\n" +
+            "\t\t\n" +
+            "\t</div>\n" +
+            "\t<!-- Описание товара (The End)-->\n" +
+            "\n" +
+            "\t<!-- Дополнительные фото продукта -->\n" +
+            "\t\t<div class=\"images\">\n" +
+            "\t\t\t\t\t<a href=\"https://shop.football.kharkov.ua/files/products/A6C90ql7CwBv7pgTNHTl-I8tchjGUGEJAQIjH7i1gkg.800x600w.jpg?639d92a894d96c5b795b5257194506f6\" class=\"zoom\" data-rel=\"group\"><img src=\"https://shop.football.kharkov.ua/files/products/A6C90ql7CwBv7pgTNHTl-I8tchjGUGEJAQIjH7i1gkg.95x95.jpg?6facff887c3ef94e908a5f1e8d9fdd96\" alt=\"Мяч для футбола Select Brilliant Super\" /></a>\n" +
+            "\t\t\t\t\t<a href=\"https://shop.football.kharkov.ua/files/products/TkoxdjKqQFxNdyjTu4K6OSaYzspt0ExO56EJc3M8r-M.800x600w.jpg?bfde1c36aa9a745c108855e788c40923\" class=\"zoom\" data-rel=\"group\"><img src=\"https://shop.football.kharkov.ua/files/products/TkoxdjKqQFxNdyjTu4K6OSaYzspt0ExO56EJc3M8r-M.95x95.jpg?8eea48479e69d6de645573fd92c2b3d0\" alt=\"Мяч для футбола Select Brilliant Super\" /></a>\n" +
+            "\t\t\t</div>\n" +
+            "\t\t<!-- Дополнительные фото продукта (The End)-->\n" +
+            "\n" +
+            "\t\n" +
+            "\t\n" +
+            "\t<!-- Соседние товары /-->\n" +
+            "\t<div id=\"back_forward\">\n" +
+            "\t\t\t\t\t←&nbsp;<a class=\"prev_page_link\" href=\"products/myach-futbolnyj-select-velocity-ims-2015\">Мяч футбольный SELECT Velocity IMS 2015</a>\n" +
+            "\t\t\t\t\t</div>\n" +
+            "\t\n" +
+            "</div>\n" +
+            "<!-- Описание товара (The End)-->\n" +
+            "\n" +
+            "<!-- Комментарии -->\n" +
+            "<div id=\"comments\">\n" +
+            "\n" +
+            "\t<h2>Комментарии</h2>\n" +
+            "\t\n" +
+            "\t\t<p>\n" +
+            "\t\tПока нет комментариев\n" +
+            "\t</p>\n" +
+            "\t\t\n" +
+            "\t<!--Форма отправления комментария-->\t\n" +
+            "\t<form class=\"comment_form\" method=\"post\">\n" +
+            "\t\t<h2>Написать комментарий</h2>\n" +
+            "\t\t\t\t<textarea class=\"comment_textarea\" id=\"comment_text\" name=\"text\" data-format=\".+\" data-notice=\"Введите комментарий\"></textarea><br />\n" +
+            "\t\t<div>\n" +
+            "\t\t<label for=\"comment_name\">Имя</label>\n" +
+            "\t\t<input class=\"input_name\" type=\"text\" id=\"comment_name\" name=\"name\" value=\"\" data-format=\".+\" data-notice=\"Введите имя\"/><br />\n" +
+            "\n" +
+            "\t\t<input class=\"button\" type=\"submit\" name=\"comment\" value=\"Отправить\" />\n" +
+            "\t\t\n" +
+            "\t\t<label for=\"comment_captcha\">Число</label>\n" +
+            "\t\t<div class=\"captcha\"><img src=\"captcha/image.php?2431\" alt='captcha'/></div> \n" +
+            "\t\t<input class=\"input_captcha\" id=\"comment_captcha\" type=\"text\" name=\"captcha_code\" value=\"\" data-format=\"\\d\\d\\d\\d\" data-notice=\"Введите капчу\"/>\n" +
+            "\t\t\n" +
+            "\t\t</div>\n" +
+            "\t</form>\n" +
+            "\t<!--Форма отправления комментария (The End)-->\n" +
+            "\t\n" +
+            "</div>\n" +
+            "<!-- Комментарии (The End) -->\n" +
+            "\n" +
+            "\n" +
+            "<script>\n" +
+            "$(function() {\n" +
+            "\t// Раскраска строк характеристик\n" +
+            "\t$(\".features li:even\").addClass('even');\n" +
+            "\n" +
+            "\t// Зум картинок\n" +
+            "\t$(\"a.zoom\").fancybox({ 'hideOnContentClick' : true });\n" +
+            "        $(\"#size-table\").click(function() {\n" +
+            "\t\t$.fancybox({\n" +
+            "\t\t\t'padding'\t\t: 0,\n" +
+            "\t\t\t'href'\t\t\t: 'https://shop.football.kharkov.ua/design/shop.football/images/Select_Sport__men.png'\n" +
+            "\t\t});\n" +
+            "                return false;\n" +
+            "    });\n" +
+            "     });\n" +
+            "</script>\n" +
+            "\n" +
+            " \n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "\t\t</div>\n" +
+            "\t\t<!-- Основная часть (The End) --> \n" +
+            "\n" +
+            "\t\t<div id=\"left\">\n" +
+            "\n" +
+            "\t\t\t<!-- Поиск-->\n" +
+            "\t\t\t<div id=\"search\">\n" +
+            "\t\t\t\t<form action=\"products\">\n" +
+            "\t\t\t\t\t<input class=\"input_search\" type=\"text\" name=\"keyword\" value=\"\" placeholder=\"Поиск товара\"/>\n" +
+            "\t\t\t\t\t<input class=\"button_search\" value=\"\" type=\"submit\" />\n" +
+            "\t\t\t\t</form>\n" +
+            "\t\t\t</div>\n" +
+            "\t\t\t<!-- Поиск (The End)-->\n" +
+            "\n" +
+            "\t\t\t\n" +
+            "\t\t\t<!-- Меню каталога -->\n" +
+            "\t\t\t<div id=\"catalog_menu\">\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Акции\" data-category=\"87\">Акции и распродажи</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольные_мячи\" data-category=\"59\">Футбольные мячи</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a class=\"selected\" href=\"catalog/Мячи_для_футбола\" data-category=\"60\">Мячи для футбола</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Мячи_для_минифутбола\" data-category=\"61\">Мячи для мини-футбола</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/myachi-dlya-ulichnogo-futbola\" data-category=\"122\">Мячи для уличного футбола</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/detskie-myachi\" data-category=\"120\">Детские мячи</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/-myachi-dlya-volejbola-\" data-category=\"125\"> Мячи для волейбола </a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Аксессуары_для_мячей\" data-category=\"78\">Аксессуары для мячей</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольная_форма\" data-category=\"70\">Футбольная форма</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Комплекты_форм_и_футболки\" data-category=\"72\">Комплекты форм</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футболки\" data-category=\"71\">Футболки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Шорты\" data-category=\"73\">Шорты</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/klubnaya-forma\" data-category=\"114\">Клубная форма</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/forma-sbornyh\" data-category=\"116\">Форма сборных</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольные_гетры\" data-category=\"62\">Футбольные гетры</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольные_щитки\" data-category=\"65\">Футбольные щитки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Вратарские_аксессуары\" data-category=\"63\">Вратарские аксессуары</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Вратарские_кофты\" data-category=\"85\">Вратарские кофты</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Вратарские_перчатки\" data-category=\"64\">Вратарские перчатки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Вратарские_штаны_шорты\" data-category=\"76\">Вратарские штаны/шорты</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольная_обувь\" data-category=\"66\">Футбольная обувь</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольные_бутсы\" data-category=\"67\">Футбольные бутсы</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Сороконожки\" data-category=\"68\">Сороконожки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Обувь_для_минифутбола\" data-category=\"69\">Обувь для мини-футбола</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Медицина\" data-category=\"74\">Медицина</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Заморозки_крема\" data-category=\"108\">Заморозки, крема</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Для_голеностопа\" data-category=\"107\">Для голеностопа</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Для_колена\" data-category=\"109\">Для колена</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Для_запястья\" data-category=\"112\">Для запястья</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Для_тренировок\" data-category=\"77\">Для тренировок</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Манишки\" data-category=\"95\">Манишки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Термобелье\" data-category=\"86\">Термобелье</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/аксессуары-и-оборудование\" data-category=\"83\">Аксессуары и оборудование</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Сумки_и_рюкзаки\" data-category=\"90\">Сумки и рюкзаки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Футбольные_сувениры\" data-category=\"91\">Футбольные сувениры</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Кружки\" data-category=\"92\">Кружки</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Шевроны\" data-category=\"94\">Шевроны</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/На_каждый_день\" data-category=\"97\">На каждый день</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Одежда\" data-category=\"98\">Одежда</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Обувь\" data-category=\"99\">Обувь</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Аксессуары\" data-category=\"100\">Аксессуары</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Судейская_амуниция\" data-category=\"101\">Судейская амуниция</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Детская_амуниция\" data-category=\"103\">Детская амуниция</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Детская_футбольная_форма\" data-category=\"104\">Детская футбольная форма</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Детская_футбольная_обувь\" data-category=\"105\">Детская футбольная обувь</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/Детские_футбольные_аксессуары\" data-category=\"106\">Детские футбольные аксессуары</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/detskie-kurtki-shtany-kostyumy\" data-category=\"118\">Детские куртки, штаны, костюмы</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/detskaya-forma-klubov\" data-category=\"115\">Детская форма клубов</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t<a  href=\"catalog/detskaya-forma-sbornyh\" data-category=\"119\">Детская форма сборных</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\n" +
+            "\t\t\t</div>\n" +
+            "\t\t\t<!-- Меню каталога (The End)-->\t\t\n" +
+            "\t\n" +
+            "\t\t\t\n" +
+            "\t\t\t<!-- Все бренды -->\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t\t<div id=\"all_brands\">\n" +
+            "\t\t\t\t<h2>Все бренды:</h2>\n" +
+            "\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/adidas\">Adidas</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/diadora\">Diadora</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Joma\">Joma</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/k-sector\">K-sector</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Liga_Sport\">Liga Sport</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Medisport\">Medisport</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/mikasa\">MIKASA</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/mizuno\">Mizuno</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Mueller\">Mueller</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Nike\">Nike</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/puma\">Puma</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Select_Sport\">Select Sport</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/SVA\">SVA</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/swift\">Swift</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/uhlsport\">Uhlsport</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\n" +
+            "\t\t\t\t\t\t\t\t\t\t<a href=\"brands/Winner\">Winner</a>\n" +
+            "\t\t\t\t\t\t\t\t\t\t\t\t</div>\n" +
+            "\t\t\t\t\t\t<!-- Все бренды (The End)-->\n" +
+            "\n" +
+            "\t\t\t<!-- Выбор валюты -->\n" +
+            "\t\t\t\t\t\t<!-- Выбор валюты (The End) -->\t\n" +
+            "\n" +
+            "\t\t\t\n" +
+            "\t\t\t<!-- Просмотренные товары -->\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t\t\n" +
+            "\t\t\t\t<h2>Вы просматривали:</h2>\n" +
+            "\t\t\t\t<ul id=\"browsed_products\">\n" +
+            "\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t<a href=\"products/myach-dlya-futbola-select-brilliant-super\"><img src=\"https://shop.football.kharkov.ua/files/products/FnpH88R9oAAd0uBvVsdTJi0m6T1_u6tNad5IVRKbOWA.50x50.jpg?31075166591f03c4045d312d15092b09\" alt=\"Мяч для футбола Select Brilliant Super\" title=\"Мяч для футбола Select Brilliant Super\"></a>\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t\t<li>\n" +
+            "\t\t\t\t\t<a href=\"products/futbolka_joma_victory\"><img src=\"https://shop.football.kharkov.ua/files/products/20121217133109.1239.98.91.50x50.jpg?1d4db29a9ff7bcdf4bd61b37118dab42\" alt=\"Футболка Joma Victory\" title=\"Футболка Joma Victory\"></a>\n" +
+            "\t\t\t\t\t</li>\n" +
+            "\t\t\t\t\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t<!-- Просмотренные товары (The End)-->\n" +
+            "\t\t\t\n" +
+            "\t\t\t\n" +
+            "\t\t\t<!-- Меню блога -->\n" +
+            "\t\t\t\n" +
+            "\t\t\t\t\t\t<div id=\"blog_menu\">\n" +
+            "\t\t\t\t<h2>Новые записи в <a href=\"blog\">блоге</a></h2>\n" +
+            "\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t<li data-post=\"13\">17.02.2014 <a href=\"blog/kineziologicheskoe-tejpirovanie-travmoopasno-tolko-dlya-vashego-yazyka\">Кинезиологическое тейпирование: травмоопасно только для вашего языка</a></li>\n" +
+            "\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t<li data-post=\"11\">19.12.2013 <a href=\"blog/chto-podarit-futbolistu-ili-kak-skolotit-sostoyanie-na-noskah\">Что подарить футболисту или как сколотить состояние на носках?</a></li>\n" +
+            "\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t<li data-post=\"7\">02.05.2012 <a href=\"blog/Joma_Top_Flex_в_действии\">Joma Top Flex в действии!</a></li>\n" +
+            "\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t<li data-post=\"8\">04.10.2011 <a href=\"blog/Ремонт_футбольных_мячей\">Ремонт футбольных мячей</a></li>\n" +
+            "\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t\t<ul>\n" +
+            "\t\t\t\t\t<li data-post=\"6\">24.07.2011 <a href=\"blog/Коллекция_формы_Joma_для_Valencia_CF\">Коллекция формы Joma для Valencia C.F.</a></li>\n" +
+            "\t\t\t\t</ul>\n" +
+            "\t\t\t\t\t\t\t</div>\n" +
+            "\t\t\t\t\t\t<!-- Меню блога  (The End) -->\n" +
+            "\t\t\t\n" +
+            "\t\t</div>\t\t\t\n" +
+            "\n" +
+            "\t</div>\n" +
+            "\t<!-- Вся страница (The End)--> \n" +
+            "\t\n" +
+            "\t<!-- Футер -->\n" +
+            "\t<div id=\"footer\">\n" +
+            "\t\t2009-2016 &copy;\n" +
+            "\t</div>\n" +
+            "\t<!-- Футер (The End)--> \n" +
+            "\t\n" +
+            "</body>\n" +
+            "</html>";
     private int newSongValue = -1;
     private boolean playingValue = false;
     private SimpleFacebook mSimpleFacebook;
@@ -81,7 +694,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     private SeekBar volumeSeekBar;
     private TextView newsDate;
     private TextView songTitleLabel;
-    private TextView songContent;
+    private WebView songContent;
     private TextView songCurrentDurationLabel;
     private TextView songTotalDurationLabel;
     private MPUtilities utils;
@@ -133,20 +746,30 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
         }
     }*/
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
+       if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
-
+                res.saveTokenToSharedPreferences(getActivity(), VKAccessToken.ACCESS_TOKEN);
                 // User passed Authorization
             }
+
             @Override
             public void onError(VKError error) {
                 // User didn't pass Authorization
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+        if(requestCode == PlaylistActivity.REQUEST_CODE)
+        {
+            if (data == null) {return;}
+            boolean exit = data.getBooleanExtra(PlaylistActivity.DATA_EXTRA_EXIT, false);
+            if (exit) {
+                getActivity().finish();
+            }
         }
     }
 
@@ -188,7 +811,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
         volumeSeekBar = (SeekBar)root.findViewById(R.id.volume_seekBar);
         songProgressBar = (SeekBar) root.findViewById(R.id.during_seekBar);
         songImageView = (ImageView)root.findViewById(R.id.canal_imageView);
-        songContent = (TextView) root.findViewById(R.id.media_controller_new_content_textView);
+        songContent = (WebView) root.findViewById(R.id.media_controller_new_content_textView);
         songTitleLabel = (TextView) root.findViewById(R.id.title_TextView);
         songCurrentDurationLabel = (TextView) root.findViewById(R.id.curent_time_TextView);
         songTotalDurationLabel = (TextView) root.findViewById(R.id.total_time_TextView);
@@ -198,23 +821,24 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
 btnShare.setOnClickListener(new View.OnClickListener() {
     @Override
     public void onClick(View v) {
-        if(musicSrv==null)
-        {
-        return;
-        }
-        if(musicSrv.getIdNews()==null)
-        {
+        if (musicSrv == null) {
             return;
         }
-      //  vkontaktePublish(musicSrv.getSongContent(),
-      //          "http://213.231.4.68/music-web/app/php/page_show_news.php?id=" + musicSrv.getIdNews(),musicSrv.getSongTitle(),"dsf");*/
-        ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
+        if (musicSrv.getIdNews() == null) {
+            return;
+        }
+            String content  = musicSrv.getSongContent();
+            String link = "http://213.231.4.68/music-web/app/php/page_show_news.php?id=" + musicSrv.getIdNews();
+            String title = musicSrv.getSongTitle();
+            String linkPicture = musicSrv.getNewsPictureUrl();
+            vkontaktePublish(content,link,title,linkPicture);
+       /* ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
                 .setContentTitle(musicSrv.getSongTitle())
                 .setContentDescription(musicSrv.getSongContent())
                 .setContentUrl(Uri.parse("http://213.231.4.68/music-web/app/php/page_show_news.php?id=" + musicSrv.getIdNews()))
                 .setImageUrl(Uri.parse(musicSrv.getNewsPictureUrl()))
                 .build();
-        ShareDialog.show(getActivity(), shareLinkContent);
+        ShareDialog.show(getActivity(), shareLinkContent);*/
       /*  Feed feed = new Feed.Builder()
                 .setName(musicSrv.getSongTitle())
                 .setDescription(musicSrv.getSongContent())
@@ -227,7 +851,7 @@ btnShare.setOnClickListener(new View.OnClickListener() {
         sharingIntent.setType("image/png");
         sharingIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri);
         startActivity(Intent.createChooser(sharingIntent, "Share image using"));*/
-    }
+        }
 });
 btnLike.setOnClickListener(new View.OnClickListener() {
 
@@ -382,7 +1006,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(getContext(), PlaylistActivity.class);
-                startActivity(i);
+                startActivityForResult(i, PlaylistActivity.REQUEST_CODE);
             }
         });
        /* btnForward.setOnClickListener(new View.OnClickListener() {
@@ -468,10 +1092,9 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                         }
                     }
                 }
-
-
             }
         });
+
         //instantiate catalogue
 
         //get songs from device
@@ -493,36 +1116,118 @@ btnLike.setOnClickListener(new View.OnClickListener() {
 
         return root;
     }
+  /*      private int getScale(){
+                Display display = ((WindowManager)getActivity(). getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                int width = size.x;
+                Double val = new Double(width)/new Double(PIC_WIDTH);
+                val = val * 100d;
+                return val.intValue();
+        }*/
+    public static String bbcode(String text) {
+        String html = text;
 
+        Map<String,String> bbMap = new HashMap<String , String>();
+
+        bbMap.put("(\r\n|\r|\n|\n\r)", "<br/>");
+        bbMap.put("\\[b\\](.+?)\\[/b\\]", "<strong>$1</strong>");
+        bbMap.put("\\[i\\](.+?)\\[/i\\]", "<span style='font-style:italic;'>$1</span>");
+        bbMap.put("\\[u\\](.+?)\\[/u\\]", "<span style='text-decoration:underline;'>$1</span>");
+        bbMap.put("\\[h1\\](.+?)\\[/h1\\]", "<h1>$1</h1>");
+        bbMap.put("\\[h2\\](.+?)\\[/h2\\]", "<h2>$1</h2>");
+        bbMap.put("\\[h3\\](.+?)\\[/h3\\]", "<h3>$1</h3>");
+        bbMap.put("\\[h4\\](.+?)\\[/h4\\]", "<h4>$1</h4>");
+        bbMap.put("\\[h5\\](.+?)\\[/h5\\]", "<h5>$1</h5>");
+        bbMap.put("\\[h6\\](.+?)\\[/h6\\]", "<h6>$1</h6>");
+        bbMap.put("\\[quote\\](.+?)\\[/quote\\]", "<blockquote>$1</blockquote>");
+        bbMap.put("\\[p\\](.+?)\\[/p\\]", "<p>$1</p>");
+        bbMap.put("\\[p=(.+?),(.+?)\\](.+?)\\[/p\\]", "<p style='text-indent:$1px;line-height:$2%;'>$3</p>");
+        bbMap.put("\\[center\\](.+?)\\[/center\\]", "<div align='center'>$1");
+        bbMap.put("\\[align=(.+?)\\](.+?)\\[/align\\]", "<div align='$1'>$2");
+        bbMap.put("\\[color=(.+?)\\](.+?)\\[/color\\]", "<span style='color:$1;'>$2</span>");
+        bbMap.put("\\[size=(.+?)\\](.+?)\\[/size\\]", "<span style='font-size:$1;'>$2</span>");
+        bbMap.put("\\[img\\](.+?)\\[/img\\]", "<img src='$1' />");
+        bbMap.put("\\[img=(.+?),(.+?)\\](.+?)\\[/img\\]", "<img width='$1' height='$2' src='$3' />");
+        bbMap.put("\\[email\\](.+?)\\[/email\\]", "<a href='mailto:$1'>$1</a>");
+        bbMap.put("\\[email=(.+?)\\](.+?)\\[/email\\]", "<a href='mailto:$1'>$2</a>");
+        bbMap.put("\\[url\\](.+?)\\[/url\\]", "<a href='$1'>$1</a>");
+        bbMap.put("\\[url=(.+?)\\](.+?)\\[/url\\]", "<a href='$1'>$2</a>");
+        bbMap.put("\\[youtube\\](.+?)\\[/youtube\\]", "<object width='640' height='380'><param name='movie' value='http://www.youtube.com/v/$1'></param><embed src='http://www.youtube.com/v/$1' type='application/x-shockwave-flash' width='640' height='380'></embed></object>");
+        bbMap.put("\\[video\\](.+?)\\[/video\\]", "<video src='$1' />");
+
+        for (Map.Entry entry: bbMap.entrySet()) {
+            html = html.replaceAll(entry.getKey().toString(), entry.getValue().toString());
+        }
+
+        return html;
+    }
 
     public final void vkontaktePublish(String message, String link, String linkName, String imageURL) {
-        VKAccessToken token = VKAccessToken.tokenFromSharedPreferences(getActivity(), vkTokenKey);
+      /*  VKSdk.requestUserState(getActivity(), new VKPaymentsCallback() {
+            @Override
+            public void onUserState(final boolean userIsVk) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//						Toast.makeText(TestActivity.this, userIsVk ? "user is vk's" : "user is not vk's", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });*/
+        VKAccessToken token = VKAccessToken.tokenFromSharedPreferences(getActivity(), VKAccessToken.ACCESS_TOKEN);
         if ((token == null) || token.isExpired()) {
-            login(getActivity(), vkScope);
-            Toast.makeText(getActivity(),"Требуется авторизация. После нее повторите попытку публикации",Toast.LENGTH_LONG);
+
+            VKSdk.login(getActivity(), Constants.SCOPE);
+            Toast.makeText(getActivity(), "Требуется авторизация. После нее повторите попытку публикации", Toast.LENGTH_LONG).show();
         } else {
+            //  Uri imageUri = Uri.parse(imageURL);
+            //  Bitmap b = null;
+            //   try {
+            //       b = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), imageUri);
+            //   } catch (IOException e) {
+            //       e.printStackTrace();
+            //   }
 
-
+            final Bitmap b = ImageLoader.getInstance().loadImageSync(imageURL);
+            // VKPhotoArray photos = new VKPhotoArray();
+            // photos.add(new VKApiPhoto("photo-47200925_314622346"));
             new VKShareDialogBuilder()
                     .setText(message)
+                            //   .setUploadedPhotos(photos)
+                    .setAttachmentImages(new VKUploadImage[]{new VKUploadImage(b, VKImageParameters.pngImage())})
                     .setAttachmentLink(linkName, link)
                     .setShareDialogListener(new VKShareDialog.VKShareDialogListener() {
 
                         @Override
                         public void onVkShareComplete(int postId) {
-
+                            //      recycleBitmap(b);
                         }
 
                         @Override
                         public void onVkShareCancel() {
-
+                            //    recycleBitmap(b);
                         }
 
                         @Override
                         public void onVkShareError(VKError error) {
-
+                            //  recycleBitmap(b);
                         }
                     }).show(getChildFragmentManager(), "VK_SHARE_DIALOG");
+        }
+    }
+  //  }
+  private Bitmap getPhoto() {
+      try {
+          return BitmapFactory.decodeStream(getActivity().getAssets().open("android.jpg"));
+      } catch (IOException e) {
+          e.printStackTrace();
+          return null;
+      }
+  }
+    private static void recycleBitmap(@Nullable final Bitmap bitmap) {
+        if (bitmap != null) {
+            bitmap.recycle();
         }
     }
 
@@ -656,7 +1361,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
 
 
          int location =    PlayList.getInstance().getPosition(newsId);
-            if(!(currentId.equals(newsId) && location == musicSrv.getSongPosition()))
+            if(!(currentId.equals(newsId) /*&& location == musicSrv.getSongPosition()*/))
             {
                 Log.d(TAG,"@@@@@@@ playsong "+ newsId);
                 musicSrv.setSong(location);
@@ -709,7 +1414,18 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                                 }
                             }
                             songTitleLabel.setText(musicSrv.getSongTitle());
-                            songContent.setText(musicSrv.getSongContent());
+                                songContent.setWebViewClient(new WebViewClient());
+                                songContent.setWebChromeClient(new WebChromeClient());
+                                songContent.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+                                songContent.getSettings().setJavaScriptEnabled(true);
+                                songContent.getSettings().setPluginState(WebSettings.PluginState.ON);
+                                songContent.getSettings().setDefaultFontSize(16);
+                                songContent.setBackgroundColor(Color.TRANSPARENT);
+                               // songContent.getSettings().setLoadWithOverviewMode(true);
+                                //songContent.getSettings().setUseWideViewPort(true);
+                                songContent.loadData(musicSrv.getSongContent(), "text/html; charset=utf-8", null);
+                           // songContent.setText(Html.fromHtml(bbcode(TEST_HTML)));
+                         //   songContent.setText(musicSrv.getSongContent());
                             imageLoader.displayImage(musicSrv.getNewsPictureUrl(), songImageView, DisplayImageLoaderOptions.getInstance());
                             newsDate.setText(utils.getDateTimeFormat(musicSrv.getNewsDate()));
                             newSongValue = musicSrv.getNewSongValue();

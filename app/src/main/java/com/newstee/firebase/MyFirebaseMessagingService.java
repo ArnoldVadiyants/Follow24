@@ -115,7 +115,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
         notificationManager.notify(new Random().nextInt() /* ID of notification */, notificationBuilder.build());
     }
 }

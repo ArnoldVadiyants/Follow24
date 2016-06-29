@@ -153,7 +153,7 @@ private CatalogListAdapter adapter;
 					holder = (ViewHolder)tag;
 				}
 			}
-			Item item = getItem(position);
+			final Item item = getItem(position);
 			if(item != null && holder != null)
 			{
 
@@ -175,7 +175,16 @@ private CatalogListAdapter adapter;
 				else
 				{
 					final String id = item.id.trim();
-					holder.catalogFeed.setOnClickListener(null);
+					holder.catalogFeed.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							Intent i = new Intent(getContext(), NewsByArgumentActivity.class);
+							i.putExtra(NewsByArgumentActivity.ARG_ID, item.id);
+							i.putExtra(NewsByArgumentActivity.ARG_TITLE, item.title);
+							i.putExtra(NewsByArgumentActivity.ARG_SORT_BY_ARGUMENT, Constants.ARGUMENT_NEWS_BY_TAG);
+							startActivity(i);
+						}
+					});
 					holder.imageView.setVisibility(View.GONE);
 					holder.title.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.addBtn.setOnClickListener(new View.OnClickListener() {

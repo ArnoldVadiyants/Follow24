@@ -62,8 +62,7 @@ public class WelcomeActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "WelcomeActivity";
-    public static final String[] SCOPE = new String[]{
-    };
+
     private SQLiteHandler db;
     private SessionManager session;
     private CallbackManager callbackmanager;
@@ -196,7 +195,7 @@ public class WelcomeActivity extends AppCompatActivity {
         btnVkReg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VKSdk.login(WelcomeActivity.this, SCOPE);
+                VKSdk.login(WelcomeActivity.this, Constants.SCOPE);
                 //     Log.d(TAG, "@@@@@@@@@@ InstanceID token: " + FirebaseInstanceId.getInstance().getToken());
             }
         });
@@ -264,6 +263,7 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void onResult(VKAccessToken res) {
                 //        Toast.makeText(WelcomeActivity.this,"Hello "+res.userId,Toast.LENGTH_LONG).show();
+                res.saveTokenToSharedPreferences(getApplicationContext(), VKAccessToken.ACCESS_TOKEN);
                 CreateUserViaSocialNet(res.userId, SocialKeys.VK);
 // Пользователь успешно авторизовался
             }

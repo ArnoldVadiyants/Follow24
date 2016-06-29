@@ -120,9 +120,7 @@ public class MusicService extends Service implements
 
             }
         else if( intent.getAction().equalsIgnoreCase( ACTION_NOTIFICATION_DISMISS ) ) {
-
-                NotificationManager mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-                mNotificationManager.cancel(1);
+                cancelNotification();
         }
         }
     }
@@ -132,6 +130,11 @@ public class MusicService extends Service implements
         handleIntent( intent );
         return super.onStartCommand(intent, flags, startId);
 
+    }
+    private void cancelNotification()
+    {
+        NotificationManager mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(NOTIFY_ID);
     }
     private void showNotification() {
         int icon = R.mipmap.ic_launcher;
@@ -161,7 +164,7 @@ public class MusicService extends Service implements
     //    }
        // notification.contentView = new RemoteViews(getPackageName(), R.layout.view_notification);
 
-        mNotificationManager.notify(1, notificationBuilder.build());
+        mNotificationManager.notify(NOTIFY_ID, notificationBuilder.build());
 
     }
 
@@ -207,7 +210,7 @@ public class MusicService extends Service implements
         super.onCreate();
          imageLoader = ImageLoader.getInstance();
 
-        songPosition =-1;
+        songPosition =-999;
         rand=new Random();
         player = new MediaPlayer();
         TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
@@ -335,7 +338,8 @@ public class MusicService extends Service implements
         try {
             player.stop();
             player.reset();
-            player.setDataSource(PlayList.getInstance().getNewsList().get(songPosition).getLinksong());
+            String link = PlayList.getInstance().getNewsList().get(songPosition).getLinksong();
+            player.setDataSource(link);
             player.prepareAsync();
         } catch (IllegalStateException e) {
             e.printStackTrace();
@@ -598,7 +602,6 @@ public class MusicService extends Service implements
                 go();
                 }
                 //Not in call: Play music
-              player.start();
 
             } else if(state == TelephonyManager.CALL_STATE_OFFHOOK) {
                 //A call is dialing, active or on hold
@@ -660,4 +663,9 @@ public class MusicService extends Service implements
         else shuffle=true;
     }
 
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        cancelNotification();
+    }
 }

@@ -23,7 +23,6 @@ public class NewsLab {
     private List<News> mNews = new ArrayList<>();
 
 
-
     private List<News> mRecommendedNews = new ArrayList<>();
     private static NewsLab sNewsLab;
     private IDataLoading mIDataLoading;
@@ -34,34 +33,41 @@ public class NewsLab {
             .baseUrl(NewsTeeApiInterface.BASE_URL)
             .build();
     private NewsTeeApiInterface newsTeeApiInterface = retrofit.create(NewsTeeApiInterface.class);
+
     private NewsLab() {
 
-      //  loadNews();
+        //  loadNews();
     }
 
-    public static NewsLab getInstance(){
+    public static NewsLab getInstance() {
         if (sNewsLab == null) {
             sNewsLab = new NewsLab();
         }
         return sNewsLab;
     }
-   /* public void loadNews()
-    {
 
-    }*/
-   public List<News> getRecommendedNews() {
-       return mRecommendedNews;
-   }
+    /* public void loadNews()
+     {
+
+     }*/
+    public List<News> getRecommendedNews() {
+        return mRecommendedNews;
+    }
 
     public void setRecommendedNews(List<News> mRecommendedNews) {
         this.mRecommendedNews = mRecommendedNews;
     }
-    public List<News> getNews() {
+
+       public List<News> getNews() {
         return mNews;
+    }
+    public void addNewses(List<News> news) {
+      mNews.addAll(news);
     }
     public void setNews(List<News> News) {
         this.mNews = News;
     }
+
     public News getNewsItem(String id) {
         for (News n : mNews) {
             if (n == null) {
@@ -73,7 +79,8 @@ public class NewsLab {
         }
         return null;
     }
-    public News getNewsItem(String id,List<News> news) {
+
+    public News getNewsItem(String id, List<News> news) {
         for (News n : news) {
             if (n == null) {
                 continue;
@@ -84,13 +91,27 @@ public class NewsLab {
         }
         return null;
     }
-    public List<News> getNewsAndArticles()
-    {
-        List<News>news = new ArrayList<>();
-        for(News n : mNews)
-        {
-            if(!n.getCategory().equals(Constants.CATEGORY_STORY))
-            {
+    public List<News> getNewsByTags(List<String>tags) {
+        return getNewsByTags( tags,mNews);
+    }
+    public List<News> getNewsByTags(List<String>tags,List<News>news) {
+        List<News> newsByTag = new ArrayList<>();
+
+        for (News n : news) {
+            List<String> newsTags = n.getIdTags();
+            for (String s : newsTags) {
+                if (tags.contains(s)) {
+                    newsByTag.add(n);
+                    break;
+                }
+            }
+        }
+        return newsByTag;
+    }
+    public List<News> getNewsAndArticles() {
+        List<News> news = new ArrayList<>();
+        for (News n : mNews) {
+            if (!n.getCategory().equals(Constants.CATEGORY_STORY)) {
                 news.add(n);
             }
         }

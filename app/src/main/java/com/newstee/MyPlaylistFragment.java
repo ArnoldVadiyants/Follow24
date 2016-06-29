@@ -72,7 +72,7 @@ public class MyPlaylistFragment extends Fragment{
         }
 
         FragmentManager fm = getActivity().getSupportFragmentManager();
-        NewsTeeInstructionsDialogFragment dialog = NewsTeeInstructionsDialogFragment.newInstance(R.drawable.play,getResources().getString(R.string.tab_play_list),getResources().getString(R.string.instructions_lenta),true);
+        NewsTeeInstructionsDialogFragment dialog = NewsTeeInstructionsDialogFragment.newInstance(R.drawable.play,getResources().getString(R.string.tab_play_list),getResources().getString(R.string.instructions_lenta),false);
         dialog.show(fm,NewsTeeInstructionsDialogFragment.DIALOG_INSTRUCTIONS);
 
     }
@@ -147,7 +147,7 @@ public class MyPlaylistFragment extends Fragment{
                 {
                     return;
                 }
-                PlayList.getInstance().setNewsList(newsList);
+                PlayList.getInstance().setNewsList(newsList,getString(R.string.tab_play_list));
                 Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
                 i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsList.get(0).getId());
                 startActivity(i);

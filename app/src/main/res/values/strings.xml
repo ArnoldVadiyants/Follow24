@@ -56,6 +56,7 @@
     <string name="btn_yes">Да</string>
     <string name="btn_no">Нет</string>
     <string name="btn_cancel">Отмена</string>
+    <string name="btn_exit">Закрыть</string>
     <string name="facebook_app_id">1017578851657800</string>
     <string name="server_client_id">167718035248-tfrr4vub2ca9rvm6avrgvh7ge2s9235l.apps.googleusercontent.com</string>
     <string name="instructions_thread">В поток попадают все новости от приложения.

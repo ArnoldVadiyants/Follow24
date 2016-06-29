@@ -162,7 +162,7 @@ abstract public class LoadAsyncTask extends AsyncTask<String, String, Boolean>
             }
         }
 
-        Call<DataNews> newsC = api.getNews();
+        Call<DataNews> newsC = api.getNews(NewsListFragment.MAX_PER_PAGE,0);
 
         try {
             Response<DataNews> newsR = newsC.execute();
