@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -958,7 +959,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onFailure(Call<DataPost> call, Throwable t) {
 
-                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -1414,7 +1415,17 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                                 }
                             }
                             songTitleLabel.setText(musicSrv.getSongTitle());
-                                songContent.setWebViewClient(new WebViewClient());
+                                songContent.setWebViewClient(new WebViewClient() {
+                                        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                                if (url != null && url.startsWith("http://")) {
+                                                        view.getContext().startActivity(
+                                                                new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                                                        return true;
+                                                } else {
+                                                        return false;
+                                                }
+                                        }
+                                });
                                 songContent.setWebChromeClient(new WebChromeClient());
                                 songContent.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
                                 songContent.getSettings().setJavaScriptEnabled(true);

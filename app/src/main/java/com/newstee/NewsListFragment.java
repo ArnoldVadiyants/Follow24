@@ -441,6 +441,9 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
               //  holder.description.setOnTouchListener(null);
              //   holder.description.setOnScrollChangeListener(null);*/
                 holder.description.setText(item.getTitle());
+                holder.description.setTextColor(textColor);
+                holder.canalTitle.setTextColor(textColor);
+                holder.time.setTextColor(textColor);
                 int height = holder.description.getHeight();
                 int lineHeight = holder.description.getLineHeight();
                 if (  height> 0 && holder.description.getLineHeight() > 0) {
@@ -485,6 +488,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                     {
                         authorName = "No canal";
                     }
+
                     imageLoader.displayImage(item.getPictureNews(), holder.newsImage, DisplayImageLoaderOptions.getInstance());
                     imageLoader.displayImage(authorAvatar, holder.canalImage, DisplayImageLoaderOptions.getRoundedInstance());
                     //     Picasso.with(getActivity())
@@ -494,7 +498,6 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                     //      holder.newsImage.setImageBitmap(item.newsImage);
                     holder.canalTitle.setText(authorName);
                     holder.likeCount.setText(item.getLikes());
-                    holder.canalTitle.setTextColor(getTextColor());
                     holder.time.setText(new MPUtilities().getDateOrTimeFormat(item.getAdditionTime()));
                     holder.newsFeed.setTag(position);
                     final String newsId = (item.getId()).trim();

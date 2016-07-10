@@ -9,6 +9,7 @@ import android.widget.TextView;
  * Created by Arnold on 17.02.2016.
  */
 public class CarModeNewsListFragment extends NewsListFragment {
+   // public static final int CAR_MODE_TEXT_COLOR =
     public static NewsListFragment newInstance(String argument, String category, String idForArgument) {
         NewsListFragment fragment = new NewsThreadListFragment();
         Bundle args = new Bundle();

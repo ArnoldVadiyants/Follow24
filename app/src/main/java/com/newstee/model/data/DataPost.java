@@ -14,9 +14,9 @@ public class DataPost {
         @SerializedName("result")
     @Expose
     private String result;
-    @SerializedName("data")
-    @Expose
-    private Object data;
+    //@SerializedName("data")
+   // @Expose
+   // private List<Object> data;
     @SerializedName("message")
     @Expose
     private String message;
@@ -44,18 +44,18 @@ public class DataPost {
      * @return
      * The data
      */
-    public Object getData() {
-        return data;
-    }
+  //  public Object getData() {
+  //      return data;
+  //  }
 
     /**
      *
      * @param data
      * The data
      */
-    public void setData(Object data) {
-        this.data = data;
-    }
+  //  public void setData(List<Object> data) {
+   //     this.data = data;
+   // }
 
     /**
      *

@@ -92,7 +92,7 @@
         android:layout_weight="1"
         android:layout_marginTop="@dimen/outer_margin"
         android:layout_marginBottom="@dimen/outer_margin"
-        android:layout_marginLeft="@dimen/outer_margin_big"
-        android:layout_marginRight="@dimen/outer_margin_big"/>
+        android:layout_marginLeft="@dimen/outer_margin"
+        android:layout_marginRight="@dimen/outer_margin"/>
 
 </LinearLayout>

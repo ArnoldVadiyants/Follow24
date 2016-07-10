@@ -23,7 +23,7 @@ import retrofit2.http.Part;
  * Created by Arnold on 05.04.2016.
  */
 public interface NewsTeeApiInterface {
-    String BASE_URL = "http://213.231.4.68/music-web/app/php/";
+    String BASE_URL = "http://follow24.news/";
 
 
     @GET("dispatcher.php?command=get_tags")
