@@ -21,9 +21,15 @@
     <dimen name = "thread_media_player_picture_height">50dp</dimen>
     <dimen name = "thread_media_player_picture_width">72dp</dimen>
     <dimen name = "news_list_item_height">100dp</dimen>
-    <dimen name = "logo_title_height">40dp</dimen>
-    <dimen name = "logo_title_width">164dp</dimen>
+    <dimen name = "logo_title_height">48dp</dimen>
+    <dimen name = "logo_title_width">172dp</dimen>
     <dimen name="notification_expanded_height">64dp</dimen>
     <dimen name="notification_button_height">28dp</dimen>
+    <dimen name="header_with_logo_height">120dp</dimen>
+    <dimen name="header_with_logo_padding">32dp</dimen>
+    <dimen name="fab_elevation">5dp</dimen>
+    <dimen name="fab_rise">3dp</dimen>
+    <dimen name="ad_size">100dp</dimen>
+    <integer name="fab_duration">100</integer>
 
 </resources>

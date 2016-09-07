@@ -20,15 +20,18 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.newstee.helper.InternetHelper;
 import com.newstee.helper.NewsTeeInstructionsDialogFragment;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.User;
 import com.newstee.model.data.UserLab;
+import com.newstee.utils.CircleTransform;
 import com.newstee.utils.DisplayImageLoaderOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.HashMap;
 
@@ -117,7 +120,33 @@ public void update()
         String avatar = UserLab.getInstance().getUser().getAvatar();
         if(avatar != null)
         {
-            imageLoader.displayImage(avatar, avatarImgView, DisplayImageLoaderOptions.getRoundedInstance());
+            avatar = InternetHelper.toCorrectLink(avatar);
+            imageLoader.displayImage(avatar,avatarImgView, DisplayImageLoaderOptions.getInstance(), new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    if (loadedImage == null) {
+                        loadedImage = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+                    }
+                    loadedImage = NewsListFragment.centerCrop(loadedImage);
+                    loadedImage = new CircleTransform().transform(loadedImage);
+                    ((ImageView) view).setImageBitmap(loadedImage);
+                }
+
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+
+                }
+            });
             imageLoader.displayImage(avatar,backgroundImgView, DisplayImageLoaderOptions.getInstance());
         }
         Log.d(TAG, "@@@@@@ avatar "+ avatar);
@@ -179,7 +208,7 @@ public void update()
             @Override
             public void onClick(View v) {
                 getActivity().startActivity(new Intent(getContext(), EditProfileActivity.class));
-                Toast.makeText(getActivity(), "edit profile clicked", Toast.LENGTH_SHORT).show();
+
                     }
         });
        // mProfilePagerAdapter = new ProfilePagerAdapter(getChildFragmentManager());

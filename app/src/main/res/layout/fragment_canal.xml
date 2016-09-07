@@ -50,7 +50,7 @@
         android:layout_height="150dp"
         android:id="@+id/canal_canal_picture_imageView"
         android:background="@android:color/transparent"
-        android:src="@drawable/test_canal_icon"
+
         android:scaleType="fitXY"
         android:layout_marginLeft="@dimen/outer_margin_big"
         android:layout_marginRight="@dimen/outer_margin_big"/>

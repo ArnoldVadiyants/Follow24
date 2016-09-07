@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="@dimen/outer_margin_medium">
+
+    <ImageView
+        android:layout_width="@dimen/icon_size_big"
+        android:layout_height="@dimen/icon_size_big"
+        android:id="@+id/comment_feed_avatar"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginRight="@dimen/outer_margin_big"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:text="Name Comment"
+        android:id="@+id/comment_feed_name"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/comment_feed_avatar"
+        android:layout_toEndOf="@+id/comment_feed_avatar"
+        android:layout_toLeftOf="@+id/comment_feed_date"
+        android:textStyle="bold"
+        android:layout_marginBottom="@dimen/outer_margin"
+        android:gravity="bottom"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:text="21.08.2016"
+        android:id="@+id/comment_feed_date"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/comment_feed_name"
+        android:gravity="bottom"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:text="Comment comment comment comment comment comment comment"
+        android:id="@+id/comment_feed_text_comment"
+        android:layout_below="@+id/comment_feed_name"
+        android:layout_toRightOf="@+id/comment_feed_avatar"
+        android:layout_toEndOf="@+id/comment_feed_avatar"
+        />
+
+    <ImageButton
+
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        android:id="@+id/comment_feed_like_image_btn"
+        android:layout_below="@+id/comment_feed_text_comment"
+        android:layout_toRightOf="@+id/comment_feed_avatar"
+        android:layout_toEndOf="@+id/comment_feed_avatar"
+        android:src="@drawable/ic_like_comment"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        android:paddingBottom="9dp"
+        android:paddingTop="7dp"
+        android:layout_marginLeft="-6dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:text="0"
+        android:id="@+id/comment_feed_like_count"
+        android:layout_toRightOf="@+id/comment_feed_like_image_btn"
+        android:layout_toEndOf="@+id/comment_feed_like_image_btn"
+        android:layout_alignBottom="@+id/comment_feed_like_image_btn"
+        android:layout_alignTop="@+id/comment_feed_like_image_btn"
+        android:layout_marginRight="@dimen/outer_margin_medium"
+        android:paddingTop="10dp"/>
+
+    <ImageButton
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        android:id="@+id/comment_feed_dislike_image_btn"
+        android:layout_below="@+id/comment_feed_text_comment"
+        android:layout_toRightOf="@+id/comment_feed_like_count"
+        android:layout_toEndOf="@+id/comment_feed_like_count"
+        android:src="@drawable/ic_dislike_comment"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        android:paddingTop="12dp"
+        android:paddingBottom="4dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:text="0"
+        android:id="@+id/comment_feed_dislike_count"
+        android:layout_below="@+id/comment_feed_text_comment"
+        android:layout_toRightOf="@+id/comment_feed_dislike_image_btn"
+        android:layout_toEndOf="@+id/comment_feed_dislike_image_btn"
+        android:layout_alignTop="@+id/comment_feed_dislike_image_btn"
+        android:layout_alignBottom="@+id/comment_feed_dislike_image_btn"
+        android:paddingTop="10dp"/>
+
+    <ImageButton
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        android:id="@+id/comment_feed_complaint_image_btn"
+        android:src="@drawable/ic_complaint_comment"
+        android:scaleType="centerInside"
+        android:layout_below="@+id/comment_feed_text_comment"
+        android:layout_toLeftOf="@+id/comment_feed_complaint_count"
+        android:layout_toStartOf="@+id/comment_feed_complaint_count"
+        android:background="@android:color/transparent"
+        android:paddingTop="9dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        tools:text="0"
+        android:id="@+id/comment_feed_complaint_count"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/comment_feed_complaint_image_btn"
+        android:layout_alignBottom="@+id/comment_feed_complaint_image_btn"
+        android:paddingTop="10dp"
+        />
+
+    <ImageButton
+        android:layout_width="@dimen/icon_size"
+        android:layout_height="@dimen/icon_size"
+        android:id="@+id/comment_feed_delete_comment_btn"
+        android:layout_alignBottom="@+id/comment_feed_complaint_image_btn"
+        android:layout_toLeftOf="@+id/comment_feed_complaint_image_btn"
+        android:layout_toStartOf="@+id/comment_feed_complaint_image_btn"
+        android:layout_alignTop="@+id/comment_feed_complaint_image_btn"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_delete_comment"
+        android:scaleType="centerInside"
+        android:paddingLeft="10dp"
+        android:paddingTop="9dp"
+        android:paddingBottom="9dp"/>
+
+</RelativeLayout>

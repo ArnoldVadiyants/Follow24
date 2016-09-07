@@ -11,13 +11,13 @@ public class User {
     @SerializedName("id")
     @Expose
     private String id;
-    @SerializedName("user_login")
+    @SerializedName("login_id")
     @Expose
     private String userLogin;
-    @SerializedName("user_password")
+    @SerializedName("password")
     @Expose
     private String userPassword;
-    @SerializedName("user_email")
+    @SerializedName("email")
     @Expose
     private String userEmail;
     @SerializedName("news_liked_ids")

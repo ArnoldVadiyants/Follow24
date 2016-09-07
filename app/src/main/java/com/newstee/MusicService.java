@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
@@ -14,14 +15,24 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
+import com.newstee.helper.InternetHelper;
+import com.newstee.helper.SessionManager;
 import com.newstee.model.data.AuthorLab;
+import com.newstee.model.data.DataPost;
 import com.newstee.model.data.News;
 import com.newstee.model.data.UserLab;
+import com.newstee.network.FactoryApi;
+import com.newstee.network.interfaces.NewsTeeApiInterface;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.IOException;
 import java.util.Random;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /*
  * This is demo code to accompany the Mobiletuts+ series:
@@ -41,6 +52,7 @@ public class MusicService extends Service implements
     private int mBufferPosition;
     private boolean mPlayerPhoneState = false;
     public static final String ACTION_NOTIFICATION_PLAY_PAUSE = "action_notification_play_pause";
+    public static final String ACTION_NOTIFICATION_OPEN_PLAYER = "action_notification_open_player";
     public static final String ACTION_NOTIFICATION_FAST_FORWARD = "action_notification_fast_forward";
     public static final String ACTION_NOTIFICATION_REWIND = "action_notification_rewind";
     public static final String ACTION_NOTIFICATION_DISMISS = "action_notification_dismiss";
@@ -48,7 +60,7 @@ public class MusicService extends Service implements
     private String idNews = "";
     private String songTitle="";
     private String songContent="";
-    private String canalTitle;
+    private String canalTitle = "";
     private String newsPictureUrl="";
 
 
@@ -102,38 +114,38 @@ public class MusicService extends Service implements
     //notification id
 
 
-    private void handleIntent( Intent intent ) {
-        if( intent != null && intent.getAction() != null ) {
-            if( intent.getAction().equalsIgnoreCase( ACTION_NOTIFICATION_PLAY_PAUSE ) ) {
-                if (isPlaying())
-                {
+    private void handleIntent(Intent intent) {
+        if (intent != null && intent.getAction() != null) {
+            if (intent.getAction().equalsIgnoreCase(ACTION_NOTIFICATION_PLAY_PAUSE)) {
+                if (isPlaying()) {
                     pausePlayer();
-                }
-                else
-                {
+                } else {
                     go();
                 }
-            } else if( intent.getAction().equalsIgnoreCase( ACTION_NOTIFICATION_FAST_FORWARD ) ) {
+            } else if (intent.getAction().equalsIgnoreCase(ACTION_NOTIFICATION_FAST_FORWARD)) {
                 playNext();
-            } else if( intent.getAction().equalsIgnoreCase( ACTION_NOTIFICATION_REWIND ) ) {
+            } else if (intent.getAction().equalsIgnoreCase(ACTION_NOTIFICATION_REWIND)) {
                 playPrev();
 
-            }
-        else if( intent.getAction().equalsIgnoreCase( ACTION_NOTIFICATION_DISMISS ) ) {
+            } else if (intent.getAction().equalsIgnoreCase(ACTION_NOTIFICATION_DISMISS)) {
                 cancelNotification();
-        }
+            }
+            else if (intent.getAction().equalsIgnoreCase(ACTION_NOTIFICATION_OPEN_PLAYER)) {
+                startActivity(new Intent(MusicService.this,MediaPlayerFragmentActivity.class).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
         }
     }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        handleIntent( intent );
+        handleIntent(intent);
         return super.onStartCommand(intent, flags, startId);
 
     }
-    private void cancelNotification()
-    {
-        NotificationManager mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+
+    private void cancelNotification() {
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         mNotificationManager.cancel(NOTIFY_ID);
     }
     private void showNotification() {
@@ -143,15 +155,18 @@ public class MusicService extends Service implements
       //  contentView.setImageViewResource(R.id.image, R.mipmap.ic_launcher);
      //   contentView.setTextViewText(R.id.title, "Custom notification");
      //   contentView.setTextViewText(R.id.text, "This is a custom layout");
-/*
+
         Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);*/
+        Bundle mBundle = new Bundle();
+        mBundle.putBoolean(MainActivity.ARG_MEDIA_PLAYER, true);
+        notificationIntent.putExtras(mBundle);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(icon)
                 .setContent(getExpandedView())
-                .setContentTitle("Custom Notification")
-              //  .setContentIntent(contentIntent)
+        //        .setContentTitle("Custom Notification")
+              .setContentIntent(contentIntent)
                 .setWhen(when)
                 .setOngoing(true);
 
@@ -171,7 +186,7 @@ public class MusicService extends Service implements
     private RemoteViews getExpandedView() {
         RemoteViews customView = new RemoteViews(getPackageName(), R.layout.view_notification );
         customView.setTextViewText(R.id.notify_text,getSongTitle());
-        customView.setImageViewBitmap( R.id.large_icon,imageLoader.loadImageSync(getNewsPictureUrl()));
+        customView.setImageViewBitmap( R.id.large_icon,imageLoader.loadImageSync(InternetHelper.toCorrectLink(getNewsPictureUrl())));
         customView.setImageViewResource( R.id.ib_rewind, R.drawable.ic_media_prev );
 
         if( isPlaying() )
@@ -197,6 +212,14 @@ public class MusicService extends Service implements
         pendingIntent = PendingIntent.getService(this, 1, intent, 0);
         customView.setOnClickPendingIntent(R.id.ib_rewind, pendingIntent);
 
+    /*    intent.setAction(ACTION_NOTIFICATION_OPEN_PLAYER);
+        pendingIntent = PendingIntent.getService(this, 1, intent, 0);
+        customView.setOnClickPendingIntent(R.id.large_icon, pendingIntent);
+
+       intent.setAction(ACTION_NOTIFICATION_OPEN_PLAYER);
+        pendingIntent = PendingIntent.getService(this, 1, intent, 0);
+        customView.setOnClickPendingIntent(R.id.notify_text, pendingIntent);
+*/
         intent.setAction(ACTION_NOTIFICATION_DISMISS);
         pendingIntent = PendingIntent.getService(this, 1, intent, 0);
         customView.setOnClickPendingIntent(R.id.destroy_notify_button, pendingIntent);
@@ -339,6 +362,7 @@ public class MusicService extends Service implements
             player.stop();
             player.reset();
             String link = PlayList.getInstance().getNewsList().get(songPosition).getLinksong();
+            link= InternetHelper.toCorrectLink(link);
             player.setDataSource(link);
             player.prepareAsync();
         } catch (IllegalStateException e) {
@@ -500,13 +524,22 @@ public class MusicService extends Service implements
                 .setContentText(songTitle);
         Notification not = builder.build();
         startForeground(NOTIFY_ID, not);*/
-
-        News n = PlayList.getInstance().getNewsList().get(songPosition);
-        //    PlayList.getInstance().setCurrent(n);
+        PlayList playList = PlayList.getInstance();
+        News n = playList.getNewsList().get(songPosition);
+        playList.setCurrent(n);
         idNews = n.getId();
         songTitle = n.getTitle();
-        canalTitle = AuthorLab.getInstance().getAuthor(n.getIdauthor()).getName();
+        String idAuthor = n.getIdauthor();
+        AuthorLab authorLab = AuthorLab.getInstance();
+        if(idAuthor != null && authorLab.getAuthor(idAuthor)!=null) {
+            String name = authorLab.getAuthor(idAuthor).getName();
+            if (name != null) {
+                canalTitle = name;
+            }
+        }
+
         songContent = n.getContent();
+        Log.d(TAG,"@@@@@@@ content:" +songContent);
         newsPictureUrl = n.getPictureNews();
         newsDate = n.getAdditionTime();
 
@@ -514,6 +547,36 @@ public class MusicService extends Service implements
         updateNewSongValue();
         showNotification();
         UserLab.getInstance().addRecentNews(n, getApplicationContext());
+        if (!InternetHelper.getInstance(getApplicationContext()).isOnline()) {
+            Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.check_internet_con), Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(!(new SessionManager(getApplicationContext()).isLoggedIn()))
+        {return;
+
+        }
+        if(playList.getArgument().equals(Constants.ARGUMENT_NEWS_ADDED)&&UserLab.getInstance().isAddedNews(idNews))
+        {
+            NewsTeeApiInterface nApi = FactoryApi.getInstance(getApplicationContext());
+            Call<DataPost> call = nApi.addNews(idNews);
+            call.enqueue(new Callback<DataPost>() {
+                @Override
+                public void onResponse(Call<DataPost> call, Response<DataPost> response) {
+                    if (response.body().getResult().equals(Constants.RESULT_SUCCESS)) {
+
+
+                    } else {
+                        Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<DataPost> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Отсутствует интернет соединение", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
 
     //playback methods

@@ -14,7 +14,7 @@
         android:layout_weight="0"
         android:visibility="visible"
         android:scaleType="centerInside"
-        android:padding="48dp"/>
+        android:padding="56dp"/>
 
     <LinearLayout
         android:orientation="vertical"

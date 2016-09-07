@@ -3,9 +3,6 @@ package com.newstee.model.data;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Generated;
 
 /**
@@ -23,14 +20,14 @@ public class DataUserAuthentication {
     private String result;
     @SerializedName("data")
     @Expose
-    private List<User> data = new ArrayList<User>();
+    private User data;
 
     /**
      *
      * @return
      * The data
      */
-    public List<User> getData() {
+    public User getData() {
         return data ;
     }
 
@@ -39,7 +36,7 @@ public class DataUserAuthentication {
      * @param data
      * The data
      */
-    public void setData(List<User> data) {
+    public void setData(User data) {
         this.data = data;
     }
 

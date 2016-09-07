@@ -63,11 +63,11 @@ private NewsThreadListFragment newsFragment;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        newsFragment =  (NewsThreadListFragment)NewsThreadListFragment.newInstance(Constants.ARGUMENT_NONE,Constants.CATEGORY_NEWS);
-        articleFragment =  (NewsThreadListFragment) NewsThreadListFragment.newInstance(Constants.ARGUMENT_NONE,Constants.CATEGORY_ARTICLE);
-        storyFragment = (NewsThreadListFragment) NewsThreadListFragment.newInstance(Constants.ARGUMENT_NONE, Constants.CATEGORY_STORY);
+        newsFragment =  (NewsThreadListFragment)NewsThreadListFragment.newInstance(Constants.ARGUMENT_NEWS_NONE,Constants.CATEGORY_NEWS);
+        articleFragment =  (NewsThreadListFragment) NewsThreadListFragment.newInstance(Constants.ARGUMENT_NEWS_NONE,Constants.CATEGORY_ARTICLE);
+        storyFragment = (NewsThreadListFragment) NewsThreadListFragment.newInstance(Constants.ARGUMENT_NEWS_NONE, Constants.CATEGORY_STORY);
 
-       List<Tag>tags = TagLab.getInstance().getTags();
+       List<Tag>tags = TagLab.getInstance().getTags(getActivity());
        for(Tag t: tags) {
            mFilterTagIds.add(t.getId());
        }
@@ -120,20 +120,17 @@ private NewsThreadListFragment newsFragment;
                 {
                  return;
                 }
-                    List<News>news = NewsLab.getInstance().getNews();
+
                     List<News>newsList= new ArrayList<News>();
-                    for(News n:news)
-                    {
-                        if(n.getCategory().equals(category))
-                        {
-                            newsList.add(n);
-                        }
-                    }
+                newsList.addAll(NewsLab.getInstance().getNews(category));
+
                 if(newsList.isEmpty())
                 {
                     return;
                 }
-                    PlayList.getInstance().setNewsList(newsList,getString(R.string.tab_stream));
+                PlayList playList =   PlayList.getInstance();
+                playList.setNewsList(newsList,getString(R.string.tab_stream));
+                playList.setArgument(Constants.ARGUMENT_NEWS_NONE);
                 Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
                 i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsList.get(0).getId());
                 startActivity(i);
@@ -147,7 +144,7 @@ private NewsThreadListFragment newsFragment;
             public void onClick(final View v) {
                 final ArrayList<String>ids = new ArrayList<String>();
                 ids.addAll(mFilterTagIds);
-                final List<Tag>tags = TagLab.getInstance().getTags();
+                final List<Tag>tags = TagLab.getInstance().getTags(getActivity());
                 boolean[]checkedCategories = new boolean[tags.size()];
                 List<CharSequence>titles = new ArrayList<>();
                 for(int i =0; i<tags.size(); i++) {
@@ -361,7 +358,7 @@ private NewsThreadListFragment newsFragment;
     }
     private boolean isFiltered()
     {
-        if(mFilterTagIds.size() == TagLab.getInstance().getTags().size())
+        if(mFilterTagIds.size() == TagLab.getInstance().getTags(getActivity()).size())
         {
             return false;
         }

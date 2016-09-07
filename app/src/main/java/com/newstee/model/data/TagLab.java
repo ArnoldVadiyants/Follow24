@@ -4,12 +4,16 @@ package com.newstee.model.data;
  * Created by Arnold on 12.04.2016.
  */
 
+import android.content.Context;
+
+import com.newstee.Constants;
+import com.newstee.helper.SessionManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class TagLab {
-    private IDataLoading mIDataLoading;
     private List<Tag> mTags = new ArrayList<>();
     private static TagLab sTagLab;
    /* private Context mAppContext;
@@ -19,13 +23,13 @@ public class TagLab {
             .baseUrl(NewsTeeApiInterface.BASE_URL)
             .build();
     private NewsTeeApiInterface newsTeeApiInterface = retrofit.create(NewsTeeApiInterface.class);*/
-    private TagLab(/*Context appContext, IDataLoading iDataLoading*/) {
+    private TagLab(/*Context appContext, NewsTeeDataLoader iDataLoading*/) {
    /*     mAppContext = appContext;
         mIDataLoading = iDataLoading;*/
      //   loadTags();
     }
 
-    public static TagLab getInstance(/*Context context, IDataLoading iDataLoading*/){
+    public static TagLab getInstance(/*Context context, NewsTeeDataLoader iDataLoading*/){
         if (sTagLab == null) {
             sTagLab = new TagLab(/*context.getApplicationContext(), iDataLoading*/);
         }
@@ -36,8 +40,29 @@ public class TagLab {
 TagAsyncTask tagAsyncTask = new TagAsyncTask();
         tagAsyncTask.execute();
     }*/
-    public List<Tag> getTags() {
-        return mTags;
+    public List<Tag> getTags(Context context) {
+        List<Tag> tags = new ArrayList<>();
+        tags.addAll(mTags);
+        SessionManager manager = new SessionManager(context);
+        String country = manager.getCountrySettingsValue();
+
+        if(country.equals(Constants.UKRAINE_VALUE))
+        {
+            Tag tag = getTagByTitle(Constants.TAG_TITLE_RUSSIA,tags);
+            if(tag !=null)
+            {
+                tags.remove(tag);
+            }
+        }
+        else if(country.equals(Constants.RUSSIA_VALUE))
+        {
+            Tag tag = getTagByTitle(Constants.TAG_TITLE_UKRAINE,tags);
+            if(tag !=null)
+            {
+                tags.remove(tag);
+            }
+        }
+        return tags;
     }
     public void setTags(List<Tag> tags) {
         this.mTags = tags;
@@ -45,6 +70,14 @@ TagAsyncTask tagAsyncTask = new TagAsyncTask();
     public Tag getTag(String id) {
         for (Tag t : mTags) {
             if (t.getId().equals(id)) {
+                return t;
+            }
+        }
+        return null;
+    }
+    public static Tag getTagByTitle(String title, List<Tag>tags) {
+        for (Tag t : tags) {
+            if (t.getNameTag().equals(title)) {
                 return t;
             }
         }

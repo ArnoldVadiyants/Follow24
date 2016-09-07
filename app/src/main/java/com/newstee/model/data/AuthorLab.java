@@ -3,31 +3,19 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.newstee.network.interfaces.NewsTeeApiInterface;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 
 public class AuthorLab {
 
-    private IDataLoading mIDataLoading;
     private List<Author> mAuthors = new ArrayList<>();
     private static AuthorLab sAuthorLab;
     private Context mAppContext;
     private Gson gson = new GsonBuilder().create();
-    private Retrofit retrofit = new Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(NewsTeeApiInterface.BASE_URL)
-            .build();
-    private NewsTeeApiInterface newsTeeApiInterface = retrofit.create(NewsTeeApiInterface.class);
-    private AuthorLab() {
+   private AuthorLab() {
        // mAppContext = appContext;
-
-        loadAuthors();
     }
 
     public static AuthorLab getInstance(){
@@ -36,11 +24,7 @@ public class AuthorLab {
         }
         return sAuthorLab;
     }
-    public void loadAuthors()
-    {
-     /*  AuthorAsyncTask task = new AuthorAsyncTask();
-        task.execute();*/
-    }
+
     public Author getAuthor(String id) {
         for (Author a : mAuthors) {
             if (a.getId().equals(id)) {

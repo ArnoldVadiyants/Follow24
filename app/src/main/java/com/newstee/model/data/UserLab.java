@@ -5,9 +5,11 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.newstee.Constants;
+import com.newstee.helper.NewsComparator;
 import com.newstee.helper.SessionManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -86,6 +88,7 @@ public class UserLab {
         mAddedNews.clear();
         mAddedNews.addAll(addedNews);
         deleteNullNews(mAddedNews);
+        Collections.sort(mAddedNews,new NewsComparator());
     }
 
     public List<News> getLikedNews() {
@@ -96,6 +99,7 @@ public class UserLab {
         mLikedNews.clear();
         mLikedNews.addAll(likedNews);
         deleteNullNews(mLikedNews);
+        Collections.sort(mLikedNews,new NewsComparator());
 
     }
 
@@ -108,7 +112,6 @@ public class UserLab {
         mAddedTags.addAll(addedTags);
 
     }
-
 
    /* private List<Long> mAddedNewsIds = new ArrayList<Long>();
     private List<Long> mLikedNewsIds = new ArrayList<Long>();
@@ -161,8 +164,26 @@ public class UserLab {
         }
         return sUserLab;
     }
+    public void deleteNews(String id )
+    {
+        News n = null;
+        for (News n2 : mAddedNews) {
+            if (n2.getId().trim().equals(id)) {
+                n = n2;
+                break;
+            }
+        }
+        if (n != null) {
+
+            mAddedNews.remove(n);
+        }
+    }
 
     public void addNews(News news) {
+        if(news == null)
+        {
+            return;
+        }
         String id = news.getId().trim();
 
         News n = null;
@@ -178,6 +199,7 @@ public class UserLab {
         } else {
             mAddedNews.remove(n);
         }
+        Collections.sort(mAddedNews,new NewsComparator());
     }
 
     public void addTag(Tag tag) {
@@ -200,6 +222,10 @@ public class UserLab {
     }
 
     public boolean likeNews(News news, Context context) {
+        if(news == null)
+        {
+            return false;
+        }
         String id = news.getId().trim();
         if (new SessionManager(context).isLoggedIn()) {
             News n = null;
@@ -212,6 +238,7 @@ public class UserLab {
             if (n == null) {
 
                 mLikedNews.add(news);
+                Collections.sort(mLikedNews,new NewsComparator());
             } else {
                 mLikedNews.remove(n);
             }
@@ -219,6 +246,7 @@ public class UserLab {
             if (likeNewsToDevice(id, context))
             {
                 mLikedNews.add(news);
+                Collections.sort(mLikedNews,new NewsComparator());
             }
             else
             {

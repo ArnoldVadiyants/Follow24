@@ -1,19 +1,24 @@
 package com.newstee.network;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.newstee.BuildConfig;
 import com.newstee.network.interfaces.JavaNetCookieJar;
 import com.newstee.network.interfaces.NewsTeeApiInterface;
 
+import java.io.IOException;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.CookieJar;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -22,6 +27,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class FactoryApi {
     private static NewsTeeApiInterface service;
+
     public static NewsTeeApiInterface getInstance(Context context) {
         if (service == null) {
             CookieManager cookieManager = new CookieManager();
@@ -30,6 +36,7 @@ public class FactoryApi {
             CookieJar cookieJar = new JavaNetCookieJar(cookieManager);
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
             builder.cookieJar(cookieJar);
+            builder.addInterceptor(new LoggingInterceptor());
             builder.readTimeout(15, TimeUnit.SECONDS);
             builder.connectTimeout(10, TimeUnit.SECONDS);
             builder.writeTimeout(10, TimeUnit.SECONDS);
@@ -41,15 +48,11 @@ public class FactoryApi {
             //    .add("*.xxxxxxx.com", "sha256/VjLZe/p3W/PJnd6lL8JVNBCGQBZynFLdZSTIqcO0SJ8=")
             //    .build());
 
-            if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-                interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
-                builder.addInterceptor(interceptor);
-            }
 
-        //    int cacheSize = 10 * 1024 * 1024; // 10 MiB
-         //   Cache cache = new Cache(context.getCacheDir(), cacheSize);
-         //   builder.cache(cache);
+
+            //    int cacheSize = 10 * 1024 * 1024; // 10 MiB
+            //   Cache cache = new Cache(context.getCacheDir(), cacheSize);
+            //   builder.cache(cache);
 
             Retrofit retrofit = new Retrofit.Builder().client(builder.build()).addConverterFactory(GsonConverterFactory.create()).baseUrl(NewsTeeApiInterface.BASE_URL).build();
             service = retrofit.create(NewsTeeApiInterface.class);
@@ -60,9 +63,52 @@ public class FactoryApi {
             return service;
         }
     }
-    public static void reset()
-    {
+
+    public static void reset() {
         service = null;
     }
 
+    public static class LoggingInterceptor implements Interceptor {
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Log.i("LoggingInterceptor", "inside intercept callback");
+            Request request = chain.request();
+            long t1 = System.nanoTime();
+            String requestLog = String.format("Sending request %s on %s%n%s",
+                    request.url(), chain.connection(), request.headers());
+            if (request.method().compareToIgnoreCase("post") == 0) {
+                requestLog = "\n" + requestLog + "\n" + bodyToString(request);
+            }
+            Log.d("TAG", "request" + "\n" + requestLog);
+            Response response = chain.proceed(request);
+            long t2 = System.nanoTime();
+
+            String responseLog = String.format("Received response for %s in %.1fms%n%s",
+                    response.request().url(), (t2 - t1) / 1e6d, response.headers());
+
+            String bodyString = response.body().string();
+
+            Log.d("TAG", "response only" + "\n" + bodyString);
+
+            Log.d("TAG", "response" + "\n" + responseLog + "\n" + bodyString);
+
+            return response.newBuilder()
+                    .body(ResponseBody.create(response.body().contentType(), bodyString))
+                    .addHeader("content-type", "application/json; charset=utf-8")
+                    .build();
+
+        }
+
+
+        public static String bodyToString(final Request request) {
+            try {
+                final Request copy = request.newBuilder().build();
+                final Buffer buffer = new Buffer();
+                copy.body().writeTo(buffer);
+                return buffer.readUtf8();
+            } catch (final IOException e) {
+                return "did not work";
+            }
+        }
+    }
 }

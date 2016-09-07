@@ -35,6 +35,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
+import com.newstee.helper.InternetHelper;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.DataPost;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity  implements  SeekBar.OnSeekB
             R.drawable.tab_image_profile,
             R.drawable.tab_image_car_mode};
     private boolean isMPShow = false;
+    public static String ARG_MEDIA_PLAYER = "media_player_start";
 private View mediaPlayer;
     private  TabLayout mTabLayout;
     /**
@@ -92,11 +94,16 @@ private View mediaPlayer;
     private Intent playIntent;
     //binding
     private boolean musicBound = false;
+    private boolean mediaStarted = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
+
+        //  Log.d(TAG, "@@@ bundle = "+ (bundle == null));
+
         setContentView(R.layout.activity_main);
        /* startActivity(new Intent(MainActivity.this, MediaPlayerFragmentActivity.class));
         finish();*/
@@ -146,7 +153,7 @@ private View mediaPlayer;
         mPullToRefresh.setOnRefreshListener(new OnRefreshListener<ScrollView>() {
             @Override
             public void onRefresh(PullToRefreshBase<ScrollView> refreshView) {
-                new LoadAsyncTask().execute();
+                new MainLoadAsyncTask().execute();
             }
         });
         mScrollView = mPullToRefresh.getRefreshableView();*/
@@ -250,7 +257,7 @@ private View mediaPlayer;
         }
         else
         {
-            new LoadAsyncTask(this) {
+            new MainLoadAsyncTask(this) {
                 @Override
                 void hideContent() {
                     mProgress.setVisibility(View.VISIBLE);
@@ -365,9 +372,9 @@ D
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        int dpValue1 = 7;
-        int dpValue2 = 9;// padding in dips
-        int dpValue3 = 9;// padding in dips
+        int dpValue1 = 10;
+        int dpValue2 = 12;// padding in dips
+        int dpValue3 = 11;// padding in dips
         float d = getResources().getDisplayMetrics().density;
         int padding1 = (int)(dpValue1 * d);
         int padding2 = (int)(dpValue2 * d);// padding in pixels
@@ -382,13 +389,16 @@ D
             tab.setBackgroundColor(getResources().getColor(android.R.color.transparent));
             tab.setImageResource(tabIcons[i]);
             tab.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            if(i == 0)
+            if (i == 3 ) {
+                tab.setPadding(padding3, padding3, padding3, padding3);
+            }
+            else if(i == 1)
+            {
+                tab.setPadding(padding1, padding1, padding1, padding1);
+            }
+           else if(i == 0||i == 2 )
             {
                 tab.setPadding(padding2, padding2, padding2, padding2);
-            }
-           else if(i == 1||i == 2 || i ==3)
-            {
-                tab.setPadding(padding3, padding3, padding3, padding3);
             }
             else if(i ==4) tab.setPadding(padding1, padding1, padding1, padding1);
             layout.addView(tab);
@@ -478,7 +488,9 @@ D
                         long currentDuration = musicSrv.getPosn();
                         if (newSongValue != musicSrv.getNewSongValue()) {
                             mpTitle.setText(musicSrv.getSongTitle());
-                            imageLoader.displayImage(musicSrv.getNewsPictureUrl(),mpPicture, DisplayImageLoaderOptions.getInstance());
+                            String pictureNews = musicSrv.getNewsPictureUrl();
+                            pictureNews = InternetHelper.toCorrectLink(pictureNews);
+                            imageLoader.displayImage(pictureNews,mpPicture, DisplayImageLoaderOptions.getInstance());
                             newSongValue = musicSrv.getNewSongValue();
                         }
                         if (mpPlayingValue != musicSrv.isPlaying()) {
@@ -509,7 +521,8 @@ D
     @Override
     protected void onResume() {
         super.onResume();
-        super.onResume();
+
+
         if(musicBound)
         {
             if(musicSrv != null)
@@ -521,6 +534,18 @@ D
             }
         }
         updateMediaPlayer();
+        if(mediaStarted)
+        {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null && bundle.getBoolean(ARG_MEDIA_PLAYER)) {
+            getIntent().getExtras().remove(ARG_MEDIA_PLAYER);
+            Log.d(TAG, "@@@ argument = true");
+            mediaStarted = false;
+            startActivity(new Intent(this, MediaPlayerFragmentActivity.class));
+
+
+        }
+        }
     }
 
     @Override

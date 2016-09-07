@@ -134,12 +134,13 @@ public class LoginActivity extends Activity {
                         public void onResponse(Call<DataPost> call, Response<DataPost> response) {}
                         @Override
                         public void onFailure(Call<DataPost> call, Throwable t) {}});
-                    User data = response.body().getData().get(0);
+                    User data = response.body().getData();;
                     db.addUser(data.getId(),data.getUserLogin(), email, password,null, null);
                     UserLab.getInstance().setUser(data);
                     hideDialog();
                     session.setLogin(true);
                     UserLab.isLogin = true;
+                    UserLab.getInstance().setIsUpdated(false);
                     Intent intent = new Intent(
                             LoginActivity.this,
                             MainActivity.class);

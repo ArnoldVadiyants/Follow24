@@ -3,6 +3,7 @@ package com.newstee;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -12,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,7 +25,6 @@ import com.newstee.helper.InternetHelper;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.Author;
 import com.newstee.model.data.AuthorLab;
-import com.newstee.model.data.DataIds;
 import com.newstee.model.data.DataNews;
 import com.newstee.model.data.DataPost;
 import com.newstee.model.data.News;
@@ -34,9 +33,12 @@ import com.newstee.model.data.TagLab;
 import com.newstee.model.data.UserLab;
 import com.newstee.network.FactoryApi;
 import com.newstee.network.interfaces.NewsTeeApiInterface;
+import com.newstee.utils.CircleTransform;
 import com.newstee.utils.DisplayImageLoaderOptions;
 import com.newstee.utils.MPUtilities;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,13 +49,19 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public abstract class NewsListFragment extends SwipeRefreshListFragment {
-    public static final int MAX_PER_PAGE = 30;
+    public static final int MAX_PER_PAGE = 50;
+    public static final int MAX_PER_PAGE_FOR_NEWS_BY_TAG= 15;
     private int mPage = 0;
     private boolean isLoading = false;
     private static final int END_TRIGGER = 2;
     private ArrayList<String> mFilterTagIds;
     private String mCategory;
-    private String mArgument;
+private boolean firstUpdate = true;
+    public  String getArgument() {
+        return mArgument;
+    }
+
+    private String mArgument = Constants.ARGUMENT_NEWS_NONE;
     private String mArgumentTitle="";
     private String mIdForArgument;
     private SessionManager session;
@@ -72,11 +80,15 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-
+        if(mArgument.equals(Constants.ARGUMENT_NEWS_BY_TAG))
+        {
+            return;
+        }
         if (isVisibleToUser) {
             Log.d("@@@@@@ " + TAG, isVisibleToUser + "" + " category " + mCategory + " argument " + mArgument);
             if(update)
             {
+                Log.d("@@@@@@ "+TAG," isUpdate "+update);
                 update = false;
                 return;
             }
@@ -84,6 +96,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                 Log.d("@@@@@@ " + TAG," adapter = null");
                 return;
             }
+
             updateFragment();
         }
 
@@ -94,6 +107,10 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
     public void onResume() {
         super.onResume();
       if (adapter == null) {
+            return;
+        }
+        if(mArgument.equals(Constants.ARGUMENT_NEWS_BY_TAG))
+        {
             return;
         }
         updateFragment();
@@ -129,12 +146,14 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
         mNews.clear();
         List<News> news = new ArrayList<>();
 
-        if (mArgument.equals(Constants.ARGUMENT_NONE)) {
+        if (mArgument.equals(Constants.ARGUMENT_NEWS_NONE)) {
             mArgumentTitle = getString(R.string.tab_stream);
-            news = NewsLab.getInstance().getNews();
+
+            news = NewsLab.getInstance().getNews(mCategory);
         } else if (mArgument.equals(Constants.ARGUMENT_NEWS_ADDED)) {
             mArgumentTitle = getString(R.string.tab_play_list);
             news = UserLab.getInstance().getAddedNews();
+            //  Collections.sort(news,new NewsComparator());
         } else if (mArgument.equals(Constants.ARGUMENT_NEWS_LIKED)) {
             mArgumentTitle = getString(R.string.my_likes);
             news = UserLab.getInstance().getLikedNews();
@@ -173,27 +192,43 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
 
             if (mIdForArgument != null) {
                 mArgumentTitle = TagLab.getInstance().getTag(mIdForArgument).getNameTag();
-                List<String> tags = new ArrayList<>();
+                mPage = 0;
+                mNews.clear();
+                new LoadNewsByTagTask().execute();
+             /*   List<String> tags = new ArrayList<>();
                 tags.add(mIdForArgument);
                 news = NewsLab.getInstance().getNewsByTags(tags);
+                if(news.size()<MAX_PER_PAGE_FOR_NEWS_BY_TAG)
+                {
+                    loadMore();
+                }*/
             }
 
 
         }
-        int count  = NewsLab.getInstance().getNews().size();
-        if(count%MAX_PER_PAGE == 0)
+        if (mArgument.equals(Constants.ARGUMENT_NEWS_BY_TAG))
         {
-            mPage = (count/MAX_PER_PAGE) -1;
+
         }
-        else
-        {
-            mPage = count/MAX_PER_PAGE;
+       else {
+            int count = NewsLab.getInstance().getNews(mCategory).size();
+            if (count % MAX_PER_PAGE == 0) {
+                mPage = (count / MAX_PER_PAGE) - 1;
+            } else {
+                mPage = count / MAX_PER_PAGE;
+            }
         }
         sortByCategory(news);
         applyFilter();
     }
 
     public void sortByCategory(List<News> news) {
+        NewsLab newsLab = NewsLab.getInstance();
+        if(mArgument.equals(Constants.ARGUMENT_NEWS_NONE))
+        {
+            mNews.addAll(news);
+           return;
+        }
         if(mCategory.equals(Constants.CATEGORY_ALL))
         {int i =0;
             for (News n : news) {
@@ -227,13 +262,34 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                 }
             }
         }
+
+
+           /* int i =0;
+            for (News n : news) {
+                i++;
+                if(n == null)
+                {
+                    Log.d(TAG, "@@@@@@@@@@@@@ n = null "+i);
+                    continue;
+                }
+                if(n.getCategory() == null)
+                {
+                    Log.d(TAG, "@@@@@@@@@@@@@ category = null"+i);
+                    continue;
+                }
+                if (n.getCategory().equals(mCategory))
+                {
+                    mNews.add(n);
+                }
+            }
+        }*/
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         session   = new SessionManager(getActivity());
         mCategory = getArguments().getString(ARG_CATEGORY, Constants.CATEGORY_NEWS);
-        mArgument = getArguments().getString(ARG_PARAMETER, Constants.ARGUMENT_NONE);
+        mArgument = getArguments().getString(ARG_PARAMETER, Constants.ARGUMENT_NEWS_NONE);
         mIdForArgument = getArguments().getString(ARG_NEWS_BY_ID);
 
 
@@ -428,6 +484,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
             final News item = getItem(position);
             if (item != null && holder != null) {
                 int textColor = getTextColor();
+                int secondaryTextColor = getSecondaryTextColor();
               /*  holder.description.setWebViewClient(new WebViewClient());
                 holder.description.setWebChromeClient(new WebChromeClient());
                 holder.description.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
@@ -443,13 +500,13 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                 holder.description.setText(item.getTitle());
                 holder.description.setTextColor(textColor);
                 holder.canalTitle.setTextColor(textColor);
-                holder.time.setTextColor(textColor);
+                holder.time.setTextColor(secondaryTextColor);
                 int height = holder.description.getHeight();
                 int lineHeight = holder.description.getLineHeight();
                 if (  height> 0 && holder.description.getLineHeight() > 0) {
                     holder.description.setMaxLines(height / lineHeight);
                 }
-                if (mCategory.equals(Constants.CATEGORY_STORY)) {
+             /*   if (mCategory.equals(Constants.CATEGORY_STORY)) {
                     holder.newsHeader.setVisibility(View.GONE);
                     imageLoader.displayImage(item.getPictureNews(), holder.newsImage, DisplayImageLoaderOptions.getInstance());
                     holder.newsFeed.setOnClickListener(new View.OnClickListener() {
@@ -458,19 +515,19 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                         feedCategoryOnClick(item.getId(), item.getTitle());
                         }
                     });
-                  /*  holder.description.setOnClickListener(new View.OnClickListener() {
+                  *//*  holder.description.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             feedCategoryOnClick(item.getId(), item.getTitle());
                         }
-                    });*/
+                    });*//*
                     FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) holder.newsFeed.getLayoutParams();
                     params.setMargins(0, 0, 52, 0);
                     holder.newsFeed.setLayoutParams(params);
                     FrameLayout.LayoutParams paramsBtn = (FrameLayout.LayoutParams) holder.statusButton.getLayoutParams();
                     paramsBtn.setMargins(0, 0, 0, 0);
                     holder.statusButton.setLayoutParams(paramsBtn);
-                } else {
+                } else {*/
                     Author author = AuthorLab.getInstance().getAuthor(item.getIdauthor());
                     if (author == null) {
                         author = new Author();
@@ -488,9 +545,45 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                     {
                         authorName = "No canal";
                     }
+                    String  imageNews = item.getPictureNews();
+                    imageNews = InternetHelper.toCorrectLink(imageNews);
+                    authorAvatar = InternetHelper.toCorrectLink(authorAvatar);
+                    imageLoader.displayImage(imageNews, holder.newsImage, DisplayImageLoaderOptions.getInstance());
+                    imageLoader.displayImage(authorAvatar, holder.canalImage, DisplayImageLoaderOptions.getInstance(), new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String imageUri, View view) {
 
-                    imageLoader.displayImage(item.getPictureNews(), holder.newsImage, DisplayImageLoaderOptions.getInstance());
-                    imageLoader.displayImage(authorAvatar, holder.canalImage, DisplayImageLoaderOptions.getRoundedInstance());
+                        }
+
+                        @Override
+                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            if (loadedImage == null) {
+                                loadedImage = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+                            }
+                            loadedImage = centerCrop(loadedImage);
+                            loadedImage = new CircleTransform().transform(loadedImage);
+                            ((ImageView) view).setImageBitmap(loadedImage);
+                        }
+
+                        @Override
+                        public void onLoadingCancelled(String imageUri, View view) {
+
+                        }
+                    });
+                  ///  Bitmap bitmapAvatar = imageLoader.loadImageSync(authorAvatar, DisplayImageOptions.createSimple().);
+                 //   if(bitmapAvatar == null)
+                   // {
+                   //     bitmapAvatar = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
+                   // }
+
+                     //   bitmapAvatar = centerCrop(bitmapAvatar);
+                    //    bitmapAvatar =  new CircleTransform().transform(bitmapAvatar);
+                 //   holder.canalImage.setImageBitmap(bitmapAvatar);
                     //     Picasso.with(getActivity())
                     //           .load(item.newsImage)
                     //         .into( holder.newsImage);
@@ -500,12 +593,12 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                     holder.likeCount.setText(item.getLikes());
                     holder.time.setText(new MPUtilities().getDateOrTimeFormat(item.getAdditionTime()));
                     holder.newsFeed.setTag(position);
-                    final String newsId = (item.getId()).trim();
-                    Log.d(TAG, "@@@@@@ id = "+newsId );
+                    final String newsIds = (item.getId()).trim();
+                    Log.d(TAG, "@@@@@@ id = "+newsIds );
                     holder.newsFeed.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            feedOnClick(newsId);
+                            feedOnClick(newsIds);
                         }
                     });
                     /*holder.description.setOnClickListener(new View.OnClickListener() {
@@ -518,7 +611,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                     setLikeView(holder.likeCount, holder.likeView, UserLab.getInstance().isLikedNews((item.getId()).trim()));
 
                     //  getTime(item.millisecondsDuring)
-                }
+                    //   }//else
             //    holder.statusButton.setTag(position);
                 final String newsId = (item.getId()).trim();
                 holder.statusButton.setOnClickListener(new View.OnClickListener() {
@@ -534,9 +627,18 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                             return;
 
                         }
-                        UserLab.getInstance().addNews(NewsLab.getInstance().getNewsItem(newsId));
+                        News n = NewsLab.getInstance().getNewsItem(newsId);
+                        UserLab userLab = UserLab.getInstance();
+                        if(n == null)
+                        {
+                            userLab.deleteNews(newsId);
+                        }
+                        else
+                        {
+                            userLab.addNews(n);
+                        }
                         int status = Constants.STATUS_NOT_ADDED;
-                        if (UserLab.getInstance().isAddedNews(newsId)) {
+                        if (userLab.isAddedNews(newsId)) {
                             status = Constants.STATUS_WAS_ADDED;
                         }
                         setStatusImageButton((ImageButton) v, status);
@@ -546,7 +648,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                         call.enqueue(new Callback<DataPost>() {
                             @Override
                             public void onResponse(Call<DataPost> call, Response<DataPost> response) {
-                                if (response.body().getResult().equals(Constants.RESULT_SUCCESS)) {
+                                   if (response.body().getResult().equals(Constants.RESULT_SUCCESS)) {
 
 
                                 } else {
@@ -588,6 +690,31 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
         };
 
     }
+    public static Bitmap centerCrop(Bitmap srcBmp ) {
+        Bitmap dstBmp;
+
+        if (srcBmp.getWidth() >= srcBmp.getHeight()) {
+            dstBmp = Bitmap.createBitmap(
+                    srcBmp,
+                    srcBmp.getWidth() / 2 - srcBmp.getHeight() / 2,
+                    0,
+                    srcBmp.getHeight(),
+                    srcBmp.getHeight()
+            );
+
+        } else {
+
+            dstBmp = Bitmap.createBitmap(
+                    srcBmp,
+                    0,
+                    srcBmp.getHeight() / 2 - srcBmp.getWidth() / 2,
+                    srcBmp.getWidth(),
+                    srcBmp.getWidth()
+            );
+        }
+        return dstBmp;
+    }
+
     private void feedCategoryOnClick(String newsId, String title)
     {
         Intent i = new Intent(getContext(), NewsByArgumentActivity.class);
@@ -604,8 +731,11 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
             Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.check_internet_con), Toast.LENGTH_LONG).show();
             return;
         }
-        PlayList.getInstance().setNewsList(mNewsFiltered, mArgumentTitle);
-        if(session.isLoggedIn())
+        PlayList playList =   PlayList.getInstance();
+        playList.setNewsList(mNewsFiltered, mArgumentTitle);
+        playList.setArgument(mArgument);
+        // add news if clicked feed
+    /*    if(session.isLoggedIn())
         {
             if(!UserLab.getInstance().isAddedNews(newsId))
             {
@@ -620,7 +750,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                         //        Toast.makeText(getContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
                         //         UserLab.getInstance().addNews(NewsLab.getInstance().getNewsItem(newsId));
                         // }
-                                       /*     int status = Constants.STATUS_NOT_ADDED;
+                                       *//*     int status = Constants.STATUS_NOT_ADDED;
                                             if (UserLab.getInstance().isAddedNews(newsId)) {
                                                 status = Constants.STATUS_WAS_ADDED;
                                             }
@@ -628,7 +758,7 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                                             Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
                                             i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsId);
                                             startActivity(i);
-*/
+*//*
                     }
 
                     @Override
@@ -640,19 +770,41 @@ public abstract class NewsListFragment extends SwipeRefreshListFragment {
                 });
 
             }
-                              /*  else
+                              *//*  else
                                 {
                                   //  PlayList.getInstance().setNewsList(UserLab.getInstance().getAddedNewsAndArticles());
                                     Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
                                    i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsId);
                                     startActivity(i);
-                                }*/
-        }
+                                }*//*
+        }*/
 
         Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
         i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsId);
         startActivity(i);
 
+    }
+    private List<News> loadNewsByTag()
+    {
+        if(mIdForArgument == null)
+        {
+            Log.d(TAG,"@@@@@ idStory = "+ null);
+            return new ArrayList<>();
+        }
+        String countryValue = new SessionManager(getActivity()).getCountrySettings();
+        NewsTeeApiInterface api = FactoryApi.getInstance(getActivity());
+        Call<DataNews> newsC = api.getNewsByTag(mIdForArgument,MAX_PER_PAGE,mPage,countryValue);
+        Log.d(TAG,"@@@@@ idStory = "+ mIdForArgument);
+        try {
+            Response<DataNews>  newsR = newsC.execute();
+
+            return   newsR.body().getNews();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ArrayList<>();
     }
 private List<News> loadNewsByStory()
 {
@@ -661,8 +813,9 @@ private List<News> loadNewsByStory()
         Log.d(TAG,"@@@@@ idStory = "+ null);
         return new ArrayList<>();
     }
+    String countryValue = new SessionManager(getActivity()).getCountrySettings();
     NewsTeeApiInterface api = FactoryApi.getInstance(getActivity());
-    Call<DataNews> newsC = api.getNewsByStory(mIdForArgument);
+    Call<DataNews> newsC = api.getNewsByStory(mIdForArgument,countryValue);
     Log.d(TAG,"@@@@@ idStory = "+ mIdForArgument);
     try {
         Response<DataNews>  newsR = newsC.execute();
@@ -766,7 +919,7 @@ private List<News> loadNewsByStory()
                                               @Override
                                               public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                                                   if (mListView.getCount() != 0
-                                                          && mListView.getLastVisiblePosition()== mListView.getCount() - 1)/* - END_TRIGGER)*/ {
+                                                          && mListView.getLastVisiblePosition()== mListView.getCount() - 1 - END_TRIGGER) {
                                                       // Do what you need to get more content.
                                                       loadMore();
                                                   }
@@ -776,20 +929,32 @@ private List<News> loadNewsByStory()
         setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
-
-                getActivity().runOnUiThread(new Runnable() {
+                String argument;
+                if(!mCategory.equals(Constants.CATEGORY_ALL))
+                {
+                    argument = mCategory;
+                }
+                else
+                {
+                    argument = mArgument;
+                }
+                new MainLoadAsyncTask(getActivity()) {
                     @Override
-                    public void run() {
-                        if (!InternetHelper.getInstance(getActivity()).isOnline()) {
-                            Toast.makeText(getActivity(), getActivity().getResources().getString(R.string.check_internet_con), Toast.LENGTH_LONG).show();
-                            return;
-                        }
+                    void hideContent() {
+                        setRefreshing(true);
                     }
-                });
-                if (!UserLab.getInstance().isUpdated()) {
 
-                    new LoadAsyncTask(getActivity()) {
+                    @Override
+                    void showContent() {
+                        updateFragment();
+                        setRefreshing(false);
+                    }
+                }.execute(Constants.ARGUMENT_AUTHORS, argument);
+
+                //Log.i(LOG_TAG, "onRefresh called from SwipeRefreshLayout");
+              /*  if (!UserLab.getInstance().isUpdated()) {
+
+                    new MainLoadAsyncTask(getActivity()) {
                         @Override
                         void hideContent() {
                         }
@@ -801,10 +966,11 @@ private List<News> loadNewsByStory()
                         }
                     }.execute();
                     return;
-                }
-                final NewsTeeApiInterface api = FactoryApi.getInstance(getActivity());
-                if (mArgument.equals(Constants.ARGUMENT_NONE)) {
+                }*/
+                /*final NewsTeeApiInterface api = FactoryApi.getInstance(getActivity());
+                if (mArgument.equals(Constants.ARGUMENT_NEWS_NONE)) {
                     mPage = 0;
+                 updateAuthors();
                     Call<DataNews> newsC = api.getNews(MAX_PER_PAGE, mPage);
                     newsC.enqueue(new Callback<DataNews>() {
                         @Override
@@ -821,7 +987,11 @@ private List<News> loadNewsByStory()
                             setRefreshing(false);
                         }
                     });
+                } else if (mArgument.equals(Constants.ARGUMENT_NEWS_ADDED)) {
+                    updateAuthors();
+                 //   Call<DataNews>dataNewsCall = api.
                 } else if (mArgument.equals(Constants.ARGUMENT_NEWS_RECOMMENDED)) {
+                    updateAuthors();
                     final Call<DataIds> idsC = api.getRecommended();
                     idsC.enqueue(new Callback<DataIds>() {
                         @Override
@@ -863,14 +1033,19 @@ private List<News> loadNewsByStory()
                             setRefreshing(false);
                         }
 
+*/
 
-                    }
-                });
+            }
+        });
 
         setColorScheme(R.color.colorAccent,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+        if(mArgument.equals(Constants.ARGUMENT_NEWS_BY_TAG))
+        {
+            updateFragment();
+        }
     }
     public void loadMore()
     {
@@ -879,35 +1054,50 @@ private List<News> loadNewsByStory()
         {
             return;
         }
-        if (mArgument.equals(Constants.ARGUMENT_NONE)||mArgument.equals(Constants.ARGUMENT_NEWS_BY_TAG)) {
-            int count = NewsLab.getInstance().getNews().size();
-            if(count < (MAX_PER_PAGE*(mPage+1)))
-            {
-                return;
-            }
+
+        int count = mNews.size();
+        Log.d(TAG,"@@@@@ count = "+ count);
+        Log.d(TAG,"@@@@@ page = "+mPage);
+        if(count < (MAX_PER_PAGE*(mPage+1)))
+        {
+            return;
+        }
+        mPage++;
+        Log.d(TAG, "@@@@@ Loading");
+        if (mArgument.equals(Constants.ARGUMENT_NEWS_NONE)) {
             isLoading = true;
-            Log.d(TAG, "@@@@@ Loading");
-            mPage++;
+setRefreshing(true);
+            String countryValue = new SessionManager(getActivity()).getCountrySettings();
             final NewsTeeApiInterface api = FactoryApi.getInstance(getActivity());
-                Call<DataNews> newsC = api.getNews(MAX_PER_PAGE, mPage);
+                Call<DataNews> newsC = api.getNewsByType(mCategory,MAX_PER_PAGE, mPage,countryValue);
                 newsC.enqueue(new Callback<DataNews>() {
                     @Override
                     public void onResponse(Call<DataNews> call, Response<DataNews> response) {
-                        List<News>loadedNews = response.body().getNews();
-                        if(!loadedNews.isEmpty())
-                        {
-                            NewsLab.getInstance().addNewses(loadedNews);
+                        List<News> loadedNews = response.body().getNews();
+                        if (!loadedNews.isEmpty()) {
+                            NewsLab newsLab = NewsLab.getInstance();
+                           newsLab.addNewses(loadedNews,mCategory);
+
                             updateFragment();
+
                         }
+                        setRefreshing(false);
                         isLoading = false;
                     }
 
                     @Override
                     public void onFailure(Call<DataNews> call, Throwable t) {
                         t.printStackTrace();
+                        setRefreshing(false);
                         isLoading = false;
                     }
                 });
+
+        }
+        else if (mArgument.equals(Constants.ARGUMENT_NEWS_BY_TAG))
+        {
+
+                new LoadNewsByTagTask().execute();
 
         }
     }
@@ -919,10 +1109,81 @@ private List<News> loadNewsByStory()
     }
 
     abstract String getEmpty();
-
+    abstract int getSecondaryTextColor();
     abstract int getTextColor();
 
     abstract void setLikeView(TextView likeTextView, ImageView likeImageView, boolean isLiked);
+  /*  private void updateAuthors()
+    {
+        Call<DataAuthor>authorCall = FactoryApi.getInstance(getActivity()).getAuthors();
+        authorCall.enqueue(new Callback<DataAuthor>() {
+            @Override
+            public void onResponse(Call<DataAuthor> call, Response<DataAuthor> response) {
+                AuthorLab.getInstance().setAuthors(response.body().getData());
+            }
+
+            @Override
+            public void onFailure(Call<DataAuthor> call, Throwable t) {
+
+            }
+        });
+    }*/
+  private class LoadNewsByTagTask extends AsyncTask<Boolean,Integer, List<News> >
+  {
+      ProgressDialog dialog;
+
+      LoadNewsByTagTask()
+      {
+        dialog  = new ProgressDialog(getActivity());
+
+          dialog.setCancelable(false);
+          if(mArgumentTitle != null&&!mArgument.isEmpty())
+          {
+              dialog.setMessage(mArgumentTitle);
+          }
+
+      }
+
+      @Override
+      protected List<News> doInBackground(Boolean... params) {
+
+          return  loadNewsByTag();
+      }
+
+
+
+      @Override
+      protected void onPostExecute(List<News> newses) {
+          super.onPostExecute(newses);
+
+          setRefreshing(false);
+          isLoading = false;
+       //   mNews.clear();
+          mNews.addAll(newses);
+          applyFilter();
+          if(firstUpdate)
+          {
+              firstUpdate = false;
+              dialog.dismiss();
+          }
+   //       dialog.dismiss();
+      }
+
+      @Override
+      protected void onPreExecute() {
+          super.onPreExecute();
+          if(firstUpdate)
+          {
+              dialog.show();
+          }
+          setRefreshing(true);
+          isLoading = true;
+      //    dialog.show();
+      }
+
+
+  }
+
 private class LoadNewsByStoryTask extends AsyncTask<Boolean,Integer, List<News> >
 {
     ProgressDialog dialog;

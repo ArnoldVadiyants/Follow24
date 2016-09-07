@@ -28,8 +28,7 @@
                     android:layout_height="@dimen/icon_size_medium"
                     android:id="@+id/canal_icon_ImageVew"
                     android:layout_gravity="left|center_vertical"
-                    tools:src="@drawable/bbc_news_logo_cyrcle"
-                    android:scaleType="centerInside"
+                    android:scaleType="centerCrop"
                     />
 
                 <LinearLayout
@@ -72,8 +71,8 @@
                     android:id="@+id/like_count_TextView"
                     android:layout_gravity="center_vertical"
                     android:textColor="@android:color/holo_red_dark"
-                    android:layout_marginRight="@dimen/icon_margin"
-                    android:layout_marginLeft="@dimen/icon_margin"/>
+                    android:layout_marginLeft="@dimen/outer_margin"
+                    android:layout_marginRight="@dimen/outer_margin"/>
 
                 <FrameLayout
                     android:layout_width="@dimen/icon_size"

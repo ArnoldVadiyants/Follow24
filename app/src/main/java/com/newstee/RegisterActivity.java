@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.DataPost;
@@ -132,6 +134,7 @@ public class RegisterActivity extends Activity {
             @Override
             public void onResponse(Call<DataPost> call, retrofit2.Response<DataPost> response) {
                 String result = response.body().getResult();
+                Log.d(TAG, "@@@@@ json "+ new Gson().toJson(response));
                 String msgRegister = response.body().getMessage();
                          /*    Log.d(TAG, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 
@@ -152,10 +155,11 @@ public class RegisterActivity extends Activity {
                                         public void onResponse(Call<DataPost> call, Response<DataPost> response) {}
                                         @Override
                                         public void onFailure(Call<DataPost> call, Throwable t) {}});
-                                    User data = response.body().getData().get(0);
+                                    User data = response.body().getData();;
                                     db.addUser(data.getId(),data.getUserLogin(), email, password,null, null);
                                     UserLab.getInstance().setUser(data);
                                     UserLab.isLogin = true;
+                                    UserLab.getInstance().setIsUpdated(false);
                                     hideDialog();
                                     session.setLogin(true);
                                 Intent intent = new Intent(

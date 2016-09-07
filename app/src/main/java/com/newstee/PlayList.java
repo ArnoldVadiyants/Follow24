@@ -13,6 +13,15 @@ public class PlayList {
     private List<News>mNewsList = new ArrayList<>();
 
 
+    private String mArgument = "";
+
+    public String getArgument() {
+        return mArgument;
+    }
+
+    public void setArgument(String mArgument) {
+        this.mArgument = mArgument;
+    }
 
     private String mListTitle = "";
     private News mCurrent;

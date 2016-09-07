@@ -31,6 +31,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.DataPost;
@@ -312,6 +313,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     private boolean CreateUserViaSocialNet(final String id, final SocialKeys key) {
+        Log.d(TAG, "@@@@@ Id = "+id + ", Key + "+key);
         Call<DataPost> callR = null;
         switch (key) {
             case GOOGLE:
@@ -374,7 +376,8 @@ public class WelcomeActivity extends AppCompatActivity {
                                     public void onFailure(Call<DataPost> call, Throwable t) {
                                     }
                                 });
-                                User data = response.body().getData().get(0);
+                                Log.d(TAG, "@@@@@ Author json "+ new Gson().toJson(response));
+                                User data = response.body().getData();
                                 switch (key) {
                                     case GOOGLE:
                                         db.addUser(data.getId(),data.getUserLogin(), null, null, SQLiteHandler.KEY_GG_ID, id);
@@ -391,6 +394,7 @@ public class WelcomeActivity extends AppCompatActivity {
                                 }
 
                                 UserLab.getInstance().setUser(data);
+
                                 UserLab.isLogin = true;
                                 session.setLogin(true);
                                 Intent intent = new Intent(
@@ -399,7 +403,7 @@ public class WelcomeActivity extends AppCompatActivity {
                                 startActivity(intent);
                                 finish();
                             } else {
-                                Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "Authorization: "+response.body().getMessage(), Toast.LENGTH_LONG).show();
                                 return;
 
                             }
@@ -416,7 +420,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     });
 
                 } else {
-                    Toast.makeText(getApplicationContext(), msgRegister, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),"Registration: " +msgRegister, Toast.LENGTH_LONG).show();
                 }
                 // Launch login activity
                                      /*           Intent intent = new Intent(

@@ -3,9 +3,12 @@ package com.newstee.network.interfaces;
 import android.support.annotation.Nullable;
 
 import com.newstee.model.data.DataAuthor;
+import com.newstee.model.data.DataComment;
+import com.newstee.model.data.DataCountryCode;
 import com.newstee.model.data.DataIds;
 import com.newstee.model.data.DataNews;
 import com.newstee.model.data.DataPost;
+import com.newstee.model.data.DataStateComment;
 import com.newstee.model.data.DataTag;
 import com.newstee.model.data.DataUpdateUser;
 import com.newstee.model.data.DataUserAuthentication;
@@ -23,8 +26,10 @@ import retrofit2.http.Part;
  * Created by Arnold on 05.04.2016.
  */
 public interface NewsTeeApiInterface {
-    String BASE_URL = "http://follow24.news/";
+    String BASE_URL = "http://afm.news/";
 
+    @GET("dispatcher.php?command=get_user_ip_data")
+    Call<DataCountryCode> getUserIpData();
 
     @GET("dispatcher.php?command=get_tags")
     Call<DataTag> getTags();
@@ -41,19 +46,44 @@ public interface NewsTeeApiInterface {
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
+    Call<DataNews> getNewsByType(@Field("category") String category, @Field("maxPerPage") int maxPerPage, @Field("page") int page,@Nullable @Field("country")String country);
+
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=get_news")
+    Call<DataNews> getNewsByTag(@Field("idtags") String idTags, @Field("maxPerPage") int maxPerPage, @Field("page") int page,@Nullable @Field("country")String country);
+
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=get_news")
     Call<DataNews> getNewsByIds(@Field("ids") String ids);
+
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news&sort=false")
     Call<DataNews> getNewsByIdsNoSort(@Field("ids") String ids);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
-    Call<DataNews> getNewsByAuthor(@Field("id_author") String id);
+    Call<DataNews> getNewsByAuthor(@Field("id_author") String id,@Nullable @Field("country")String country);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
-    Call<DataNews> getNewsByStory(@Field("idstory") String id);
+    Call<DataNews> getNewsByStory(@Field("idstory") String id,@Nullable @Field("country")String country);
 
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=get_comment")
+    Call<DataComment> getComments(@Field("id") String id, @Field("offset") int offset, @Field("count") int count);
+
+
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=change_comment_state")
+    Call<DataStateComment> changeCommentState(@Field("comment_id") String commentId, @Field("state_type") String stateType);
+
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=delete_comment")
+    Call<DataPost> removeComment(@Field("comment_id") String commentId);
+
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=add_comment")
+    Call<DataPost> addComment(@Field("id") String id, @Field("name") String name, @Field("avatar") String avatar, @Field("comment") String comment);
     //   @GET("dispatcher.php?command=get_audio")
     //   Call<DataAudio> getAudio();
   /*  @FormUrlEncoded
@@ -63,6 +93,7 @@ public interface NewsTeeApiInterface {
     @FormUrlEncoded
     @POST("dispatcher.php?command=subscribe")
     Call<DataPost> subscribe(@Field("tag_id") String idTag);
+
     @FormUrlEncoded
     @POST("dispatcher.php?command=unsubscribe")
     Call<DataPost> unsubscribe(@Field("tag_id") String idTag);
@@ -85,7 +116,7 @@ public interface NewsTeeApiInterface {
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=authentication")
-    Call<DataUserAuthentication> signIn(@Nullable @Field("gpid") String gId,@Nullable @Field("fbid") String fbId,@Nullable @Field("vkid") String vkId,@Nullable @Field("twid") String twId, @Field("language") String language);
+    Call<DataUserAuthentication> signIn(@Nullable @Field("gpid") String gId, @Nullable @Field("fbid") String fbId, @Nullable @Field("vkid") String vkId, @Nullable @Field("twid") String twId, @Field("language") String language);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=authentication")
@@ -96,7 +127,8 @@ public interface NewsTeeApiInterface {
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=add_user_key")
-    Call<DataPost> add_user_key(@Field("key")String key );
+    Call<DataPost> add_user_key(@Field("key") String key);
+
     @Multipart
     @POST("dispatcher.php?command=update_user")
     Call<DataUpdateUser> update_user(@Part("username") RequestBody username, @Part("email") RequestBody email, @Part("avatar\"; filename=\"pp.png\"") RequestBody avatar);

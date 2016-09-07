@@ -2,7 +2,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/white">
+                android:background="@drawable/back_gray_3gradient">
 
     <ImageView
         android:id="@+id/large_icon"
@@ -20,8 +20,8 @@
         android:layout_toRightOf="@id/large_icon"
         android:orientation="horizontal"
         android:visibility="visible"
-        android:layout_alignRight="@+id/notify_text"
-        android:layout_alignEnd="@+id/notify_text">
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true">
 
         <ImageButton
             android:id="@+id/ib_rewind"

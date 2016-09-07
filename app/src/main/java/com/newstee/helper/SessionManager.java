@@ -5,9 +5,14 @@ package com.newstee.helper;
     import android.content.Context;
     import android.content.SharedPreferences;
     import android.content.SharedPreferences.Editor;
+    import android.preference.PreferenceManager;
+    import android.support.annotation.Nullable;
     import android.util.Log;
 
-    public class SessionManager {
+    import com.newstee.Constants;
+    import com.newstee.model.data.IpLab;
+
+public class SessionManager {
 
 
 
@@ -19,7 +24,7 @@ package com.newstee.helper;
         SharedPreferences pref;
 
         Editor editor;
-        Context _context;
+        Context appContext;
 
         // Shared pref mode
         int PRIVATE_MODE = 0;
@@ -30,11 +35,12 @@ package com.newstee.helper;
         private static final String KEY_IS_CAR_MODE = "car_mode";
         private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
         private static final String KEY_RECENT_IDS = "recent_ids";
+        private static final String KEY_COUNTRY = "country";
 
 
         public SessionManager(Context context) {
-            this._context = context;
-            pref = _context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
+            this.appContext = context;
+            pref = appContext.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
             editor = pref.edit();
         }
         public void setLikedIds(String likedIds)
@@ -73,6 +79,48 @@ package com.newstee.helper;
         public boolean isCarMode(){
             return pref.getBoolean(KEY_IS_CAR_MODE, false);
         }
+
+        @Nullable
+        public String getCountrySettings()
+        {
+          String value=  PreferenceManager.getDefaultSharedPreferences(appContext).getString(KEY_COUNTRY,"2");
+            if(value.equals("0"))
+            {
+                return Constants.RUSSIA_VALUE;
+            }
+            else  if(value.equals("1"))
+            {
+                return Constants.UKRAINE_VALUE;
+            }
+         /*   else  if(value.equals("2"))
+            {
+                return Constants.AUTO_DEFINE_VALUE;
+            }*/
+            else
+            {
+                return null;
+            }
+        }
+    public String getCountrySettingsValue()
+    {
+        String value=  PreferenceManager.getDefaultSharedPreferences(appContext).getString(KEY_COUNTRY,"2");
+        if(value.equals("0"))
+        {
+            return Constants.RUSSIA_VALUE;
+        }
+        else  if(value.equals("1"))
+        {
+            return Constants.UKRAINE_VALUE;
+        }
+        else  if(value.equals("2"))
+            {
+                return IpLab.getInstance().getCountryCode();
+            }
+        else
+        {
+            return "";
+        }
+    }
 
         public void setLogin(boolean isLoggedIn) {
 

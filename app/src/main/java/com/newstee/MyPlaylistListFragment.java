@@ -39,7 +39,7 @@ public class MyPlaylistListFragment extends NewsListFragment {
                 statusImageButton.setImageResource(R.drawable.ic_is_added);
                 break;
             case Constants.STATUS_IS_PLAYING:
-                statusImageButton.setImageResource(R.drawable.news_is_playing_button);
+          //      statusImageButton.setImageResource(R.drawable.news_is_playing_button);
                 break;
         }
     }
@@ -52,19 +52,22 @@ public class MyPlaylistListFragment extends NewsListFragment {
     int getTextColor() {
         return getResources().getColor(android.R.color.background_dark);
     }
-
+    @Override
+    int getSecondaryTextColor() {
+        return getResources().getColor(android.R.color.secondary_text_light);
+    }
     @Override
     void setLikeView(TextView likeTextView, ImageView likeImageView, boolean isLiked) {
         int color1;
         int color2;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             color1 = getResources().getColor(android.R.color.holo_red_light,null);
-            color2 = getResources().getColor(R.color.colorPrimary,null);
+            color2 = getResources().getColor(android.R.color.secondary_text_light,null);
         }
         else
         {
             color1 = getResources().getColor(android.R.color.holo_red_light);
-            color2 = getResources().getColor(R.color.colorPrimary);
+            color2 = getResources().getColor(android.R.color.secondary_text_light);
         }
         if(isLiked)
         {

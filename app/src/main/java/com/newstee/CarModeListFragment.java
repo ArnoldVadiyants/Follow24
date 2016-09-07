@@ -24,9 +24,16 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.newstee.helper.InternetHelper;
+import com.newstee.model.data.News;
+import com.newstee.model.data.NewsLab;
+import com.newstee.model.data.UserLab;
 import com.newstee.utils.DisplayImageLoaderOptions;
 import com.newstee.utils.MPUtilities;
 import com.nostra13.universalimageloader.core.ImageLoader;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Arnold on 17.02.2016.
@@ -34,6 +41,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 public class CarModeListFragment extends Fragment implements  SeekBar.OnSeekBarChangeListener{
     private final static String TAG = "CarModeListFragment";
     private View mediaPlayer;
+    private LinearLayout startButton;
+    private    ViewPager mViewPager;
     private int newSongValue = -1;
     private ImageButton mpBtnPlay;
     private TextView mpTitle;
@@ -49,7 +58,7 @@ public class CarModeListFragment extends Fragment implements  SeekBar.OnSeekBarC
     private boolean musicBound = false;
 
     private int mSection = 0;
-    private String mArgument = Constants.ARGUMENT_NONE;
+    private String mArgument = Constants.ARGUMENT_NEWS_NONE;
 ImageView icon;
     TextView title;
     private PlayListPager mPlayListPager;
@@ -133,6 +142,7 @@ ImageView icon;
         {
             case CarModeListActivity.TAB_STREAM:
             {
+                mArgument = Constants.ARGUMENT_NEWS_NONE;
                 icon.setImageResource(R.drawable.stream_clicked);
                 title.setText(getResources().getText(R.string.tab_stream));
                 break;
@@ -159,7 +169,8 @@ ImageView icon;
                 break;
             }
         }
-        LinearLayout startBtn = (LinearLayout) rootView.findViewById(R.id.car_mode_list_start_button);
+
+ startButton = (LinearLayout) rootView.findViewById(R.id.car_mode_list_start_button);
         ImageButton exitBtn = (ImageButton)rootView.findViewById(R.id.car_mode_list_exitBtn);
         exitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -167,19 +178,72 @@ ImageView icon;
                 getActivity().finish();
             }
         });
-        startBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-        ViewPager mViewPager = (ViewPager)rootView.findViewById(R.id.car_mode_list_container);
+        mViewPager = (ViewPager)rootView.findViewById(R.id.car_mode_list_container);
         mViewPager.setAdapter(mPlayListPager);
         mViewPager.setCurrentItem(0);
 
         TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.car_mode_list_tabs);
         tabLayout.setupWithViewPager(mViewPager);
+        startButton.setOnClickListener(new View.OnClickListener() {
+            String argumentTitle = "";
+            @Override
+            public void onClick(View v) {
 
+                String category = null;
+                if (mViewPager.getCurrentItem() == 0) {
+                    category = Constants.CATEGORY_NEWS;
+                } else if (mViewPager.getCurrentItem() == 1) {
+                    category = Constants.CATEGORY_ARTICLE;
+                }
+                if (category == null) {
+                    return;
+                }
+                List<News> news = new ArrayList<News>();
+                switch (mArgument) {
+                    case Constants.ARGUMENT_NEWS_NONE: {
+                        argumentTitle = getString(R.string.tab_stream);
+                        news.addAll(NewsLab.getInstance().getNewsAndArticles());
+                        break;
+                    }
+                    case Constants.ARGUMENT_NEWS_ADDED: {
+                        argumentTitle = getString(R.string.tab_play_list);
+                        news.addAll(UserLab.getInstance().getAddedNews());
+                        break;
+                    }
+                    case Constants.ARGUMENT_NEWS_RECENT: {
+                        argumentTitle = getString(R.string.car_mode_tab_recent);
+                        List<News> newsInverse = UserLab.getInstance().getRecentNews();
+                        for (int i = newsInverse.size() - 1; i >= 0; i--) {
+                            news.add(newsInverse.get(i));
+                        }
+                        break;
+                    }
+                    case Constants.ARGUMENT_NEWS_RECOMMENDED:
+                    {
+                        argumentTitle = getString(R.string.car_mode_tab_recommend);
+                        news.addAll(NewsLab.getInstance().getRecommendedNews());
+                        break;
+                    }
+                }
+                List<News> newsList = new ArrayList<News>();
+                for (News n : news) {
+                    if (n.getCategory().equals(category)) {
+                        newsList.add(n);
+                    }
+                }
+                if (newsList.isEmpty()) {
+                    return;
+                }
+                PlayList playList = PlayList.getInstance();
+                playList.setNewsList(newsList, argumentTitle);
+                playList.setArgument(mArgument);
+                Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
+                i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsList.get(0).getId());
+                startActivity(i);
+
+            }
+
+        });
 /*
 
         FragmentManager fm = getChildFragmentManager();
@@ -284,7 +348,9 @@ ImageView icon;
                         long currentDuration = musicSrv.getPosn();
                         if (newSongValue != musicSrv.getNewSongValue()) {
                             mpTitle.setText(musicSrv.getSongTitle());
-                            imageLoader.displayImage(musicSrv.getNewsPictureUrl(),mpPicture, DisplayImageLoaderOptions.getInstance());
+                            String pictureUrl = musicSrv.getNewsPictureUrl();
+                            pictureUrl = InternetHelper.toCorrectLink(pictureUrl);
+                            imageLoader.displayImage(pictureUrl,mpPicture, DisplayImageLoaderOptions.getInstance());
                             newSongValue = musicSrv.getNewSongValue();
                         }
                         if (mpPlayingValue != musicSrv.isPlaying()) {

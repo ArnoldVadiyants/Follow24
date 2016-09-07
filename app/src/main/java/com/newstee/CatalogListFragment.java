@@ -21,7 +21,6 @@ import com.newstee.helper.SessionManager;
 import com.newstee.model.data.Author;
 import com.newstee.model.data.AuthorLab;
 import com.newstee.model.data.DataPost;
-import com.newstee.model.data.DataTag;
 import com.newstee.model.data.Tag;
 import com.newstee.model.data.TagLab;
 import com.newstee.model.data.UserLab;
@@ -259,7 +258,7 @@ private void update()
 
 	}
 	else {
-		List<Tag> tags = TagLab.getInstance().getTags();
+		List<Tag> tags = TagLab.getInstance().getTags(getActivity());
 		for (Tag t : tags) {
 			items.add(new Item(t.getId(), null, t.getNameTag(), true));
 		}
@@ -290,7 +289,7 @@ private void update()
 				if(!UserLab.getInstance().isUpdated())
 				{
 
-					new LoadAsyncTask(getActivity()) {
+					new MainLoadAsyncTask(getActivity()) {
 						@Override
 						void hideContent() {
 						}
@@ -303,7 +302,23 @@ private void update()
 					}.execute();
 					return;
 				}
-				Call<DataTag> tagC = FactoryApi.getInstance(getActivity()).getTags();
+				else
+				{
+					new MainLoadAsyncTask(getActivity()) {
+						@Override
+						void hideContent() {
+						}
+						@Override
+						void showContent() {
+							update();
+							adapter.notifyDataSetChanged();
+							setRefreshing(false);
+						}
+					}.execute(Constants.ARGUMENT_TAGS);
+				}
+
+
+			/*	Call<DataTag> tagC = FactoryApi.getInstance(getActivity()).getTags();
 				tagC.enqueue(new Callback<DataTag>() {
 					@Override
 					public void onResponse(Call<DataTag> call, Response<DataTag> response) {
@@ -321,7 +336,7 @@ private void update()
 						setRefreshing(false);
 					}
 				});
-
+*/
 			}
 		});
 		setColorScheme(R.color.colorAccent,

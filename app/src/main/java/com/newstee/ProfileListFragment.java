@@ -288,7 +288,7 @@ public class ProfileListFragment extends ListFragment
 	/*	*//**//*setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				new LoadAsyncTask(getActivity()) {
+				new MainLoadAsyncTask(getActivity()) {
 					@Override
 					void hideContent() {
 

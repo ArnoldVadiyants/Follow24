@@ -7,13 +7,15 @@
              android:visibility="visible">
 
     <ImageView
-        android:layout_width="@dimen/logo_title_width"
+        android:layout_width="wrap_content"
         android:layout_height="@dimen/logo_title_height"
         android:id="@+id/car_mode_header_title"
         android:src="@drawable/logo_title"
         android:layout_gravity="center"
         android:layout_weight="0"
-        android:visibility="visible"/>
+        android:visibility="visible"
+        android:scaleType="centerInside"
+        />
 
     <LinearLayout
         android:orientation="vertical"

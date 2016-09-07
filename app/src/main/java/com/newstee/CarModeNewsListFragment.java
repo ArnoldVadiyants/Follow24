@@ -39,7 +39,7 @@ public class CarModeNewsListFragment extends NewsListFragment {
                 statusImageButton.setImageResource(R.drawable.ic_is_added_light);
                 break;
             case Constants.STATUS_IS_PLAYING:
-                statusImageButton.setImageResource(R.drawable.news_is_playing_button);
+             //   statusImageButton.setImageResource(R.drawable.news_is_playing_button);
                 break;
         }
 
@@ -48,6 +48,11 @@ public class CarModeNewsListFragment extends NewsListFragment {
     @Override
     String getEmpty() {
         return getString(R.string.check_internet_con);
+    }
+
+    @Override
+    int getSecondaryTextColor() {
+        return getResources().getColor(android.R.color.secondary_text_dark);
     }
 
     @Override
@@ -65,7 +70,7 @@ public class CarModeNewsListFragment extends NewsListFragment {
         }
         else
         {
-            likeTextView.setTextColor(getResources().getColor(android.R.color.background_light));
+            likeTextView.setTextColor(getResources().getColor(android.R.color.secondary_text_dark));
             likeImageView.setImageResource(R.drawable.ic_like_car_mode);
 
         }

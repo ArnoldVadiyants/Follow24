@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout
+        android:id="@+id/activity_comment_swipyrefreshlayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:srl_direction="both">
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/activity_comment_comments_listView"
+        android:fadeScrollbars="false"
+      />
+    </com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary">
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:id="@+id/activity_comment_input_text"
+            android:layout_weight="1"
+            android:hint="@string/hint_add_comment"
+            android:minLines="2"
+            android:paddingTop="@dimen/outer_margin_medium"
+            android:paddingRight="@dimen/outer_margin_medium"
+            android:paddingBottom="@dimen/outer_margin_medium"
+            android:paddingLeft="@dimen/outer_margin_big"/>
+
+        <ImageButton
+            android:layout_width="@dimen/icon_size_big"
+            android:layout_height="match_parent"
+            android:id="@+id/activity_comment_sent_button"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_sent"
+            android:scaleType="centerInside"
+            android:padding="@dimen/outer_margin_medium"/>
+    </LinearLayout>
+</LinearLayout>

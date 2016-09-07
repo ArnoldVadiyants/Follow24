@@ -12,8 +12,10 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.newstee.Constants;
 import com.newstee.MainActivity;
 import com.newstee.R;
+import com.newstee.helper.InternetHelper;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 
@@ -61,6 +63,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String content = "";
         String user_id = "";
         String link_picture = "";
+        String country = "";
      /*   JSONObject json;
         try {
             json = new JSONObject(messageBody);
@@ -73,21 +76,41 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         title = data.get("title");
         user_id = data.get("user_id");
         link_picture = data.get("link_picture");
+        country = data.get("country");
+        link_picture = InternetHelper.toCorrectLink(link_picture);
         Boolean notif = PreferenceManager.getDefaultSharedPreferences(this).getBoolean("notifications",true);
         if(!notif.booleanValue())
         {
+            Log.e(TAG,"@@@@ notif value = false");
             return;
         }
         if (!(new SessionManager(this).isLoggedIn())) {
+            Log.e(TAG,"@@@@ session is not logged");
             return;
         }
         String id = new SQLiteHandler(getApplicationContext()).getUserDetails().get(SQLiteHandler.KEY_ID);
         //   JSONObject json = new JSONObject
         if (id == null) {
+            Log.e(TAG,"@@@@ id  = null");
+
             return;
         }
         if (!user_id.equals(id)) {
+            Log.e(TAG,"@@@@ users not match ");
+
             return;
+        }
+      // String settingsCountry  =PreferenceManager.getDefaultSharedPreferences(this).getString("country","2");
+        if(country == null || (!country.equals("2")))
+        {
+            String settingsCountry = new SessionManager(getApplicationContext()).getCountrySettingsValue();
+
+            if((country.equals("0")&&settingsCountry.equals(Constants.UKRAINE_VALUE))||(country.equals("1")&&settingsCountry.equals(Constants.RUSSIA_VALUE)))
+            {
+                Log.e(TAG, "@@@@ country not match ");
+
+                return;
+            }
         }
 
 
@@ -97,6 +120,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
              user_id = m.group(3);
             link_picture = m.group(4);*/
 
+        Log.d(TAG,"@@@@ sending notif...");
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

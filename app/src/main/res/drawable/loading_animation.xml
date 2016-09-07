@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<rotate xmlns:android="http://schemas.android.com/apk/res/android"
+        android:duration="4000"
+        android:fromDegrees="0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toDegrees="360" >
+
+
+</rotate>-->
+
+
 <!--
   ~ Copyright (2015) Alexey Mitutov
   ~
@@ -15,8 +26,11 @@
   ~ limitations under the License.
   -->
 
-<animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/loading"
-                 android:pivotX="50%"
-                 android:pivotY="50%"
-                />
+    <animated-rotate xmlns:android="http://schemas.android.com/apk/res/android"
+        android:drawable="@drawable/loading_gradient"
+                     android:duration="2000"
+                     android:pivotX="50%"
+                     android:pivotY="50%"
+                     android:fromDegrees="0"
+                     android:toDegrees="1440"
+                    />

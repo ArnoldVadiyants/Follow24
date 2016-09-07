@@ -180,7 +180,7 @@ showDialog();
 			showContentData();
 		}
 		else {
-			new LoadAsyncTask(this) {
+			new MainLoadAsyncTask(this) {
 				@Override
 				void hideContent() {
 					mProgressLayout.setVisibility(View.VISIBLE);

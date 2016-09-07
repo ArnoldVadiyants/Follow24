@@ -136,7 +136,7 @@ public class MyPlaylistFragment extends Fragment{
                 if (category == null) {
                     return;
                 }
-                List<News> news = UserLab.getInstance().getAddedNewsAndArticles();
+                List<News> news = UserLab.getInstance().getAddedNews();
                 List<News> newsList = new ArrayList<News>();
                 for (News n : news) {
                     if (n.getCategory().equals(category)) {
@@ -147,7 +147,9 @@ public class MyPlaylistFragment extends Fragment{
                 {
                     return;
                 }
-                PlayList.getInstance().setNewsList(newsList,getString(R.string.tab_play_list));
+                PlayList playList =   PlayList.getInstance();
+                playList.setNewsList(newsList,getString(R.string.tab_play_list));
+                playList.setArgument("start_button");
                 Intent i = new Intent(getActivity(), MediaPlayerFragmentActivity.class);
                 i.putExtra(MediaPlayerFragmentActivity.ARG_AUDIO_ID, newsList.get(0).getId());
                 startActivity(i);

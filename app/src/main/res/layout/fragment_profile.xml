@@ -59,7 +59,7 @@
         android:layout_height="140dp"
         android:id="@+id/profile_background_imageView"
         android:background="@android:color/transparent"
-        android:src="@drawable/profile_back2"
+        android:src="@drawable/profile_image"
         android:scaleType="centerCrop"
         android:alpha="0.5"
         android:layout_marginLeft="@dimen/outer_margin_big"

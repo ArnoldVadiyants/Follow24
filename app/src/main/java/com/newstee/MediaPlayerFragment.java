@@ -2,10 +2,10 @@ package com.newstee;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.share.model.ShareLinkContent;
+import com.facebook.share.widget.ShareDialog;
 import com.newstee.MusicService.MusicBinder;
 import com.newstee.helper.InternetHelper;
 import com.newstee.model.data.DataPost;
@@ -47,12 +50,11 @@ import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.api.VKError;
-import com.vk.sdk.api.photo.VKImageParameters;
-import com.vk.sdk.api.photo.VKUploadImage;
 import com.vk.sdk.dialogs.VKShareDialog;
 import com.vk.sdk.dialogs.VKShareDialogBuilder;
 
-import java.io.IOException;
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +69,7 @@ import retrofit2.Response;
  */
 public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarChangeListener {
     private final static String TAG = "MediaPlayerFragment";
+        private final static String NEWS_URL = NewsTeeApiInterface.BASE_URL+"onenews.php?id=";
     private final static String TEST_HTML = "<html>\n" +
             "<head>\n" +
             "\t<base href=\"https://shop.football.kharkov.ua/\"/>\n" +
@@ -690,6 +693,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     private ImageButton btnPlaylist;
     private ImageButton btnLike;
     private ImageButton btnShare;
+    private ImageButton btnComment;
     private ImageView songImageView;
     private SeekBar songProgressBar;
     private SeekBar volumeSeekBar;
@@ -698,6 +702,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     private WebView songContent;
     private TextView songCurrentDurationLabel;
     private TextView songTotalDurationLabel;
+        private AlertDialog shareDialog;
     private MPUtilities utils;
     private Handler mHandler = new Handler();
     private int seekForwardTime = 5000; // 5000 milliseconds
@@ -712,7 +717,11 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     //controller
 
 
-    //activity and playback pause flags
+
+
+
+
+        //activity and playback pause flags
     private boolean paused=false, playbackPaused=false;
 
 
@@ -726,6 +735,8 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
         Log.d(TAG, "******onCreate*****");
 
     }
+
+
 
     @Override
     public void onResume() {
@@ -794,6 +805,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
             newToken.saveTokenToSharedPreferences(getApplicationContext(), vkTokenKey);
         }
     };*/
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -802,7 +814,8 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
         View root = inflater.inflate(R.layout.media_conroller,container, false );
         btnPlay = (ImageButton) root.findViewById(R.id.pause);
         btnLike = (ImageButton)root.findViewById(R.id.like_imageButton);
-        btnShare = (ImageButton)root.findViewById(R.id.share_imageButton);
+       btnShare = (ImageButton)root.findViewById(R.id.share_imageButton);
+        btnComment = (ImageButton)root.findViewById(R.id.comment_imageButton);
     //    btnForward = (ImageButton) root.findViewById(R.id.ffwd);
     //    btnBackward = (ImageButton) root.findViewById(R.id.rew);
         btnNext = (ImageButton) root.findViewById(R.id.next);
@@ -828,25 +841,88 @@ btnShare.setOnClickListener(new View.OnClickListener() {
         if (musicSrv.getIdNews() == null) {
             return;
         }
-            String content  = musicSrv.getSongContent();
+          final AlertDialog.Builder shareBuilder = new AlertDialog.Builder(getActivity());
+          ;
+          /*    final ArrayAdapter<ImageView> arrayAdapter = new ArrayAdapter<ImageView>(
+                    getActivity(),
+                    android.R.layout.select_dialog_singlechoice);
+            ImageView imageVkView = new ImageButton(getActivity());
+            imageVkView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            imageVkView.setImageResource(R.drawable.vkontakte_logo);
+            arrayAdapter.add(imageVkView);
+            ImageView imageFcbView = new ImageButton(getActivity());
+            imageVkView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            imageVkView.setImageResource(R.drawable.facebook_logo);
+            arrayAdapter.add(imageFcbView);*/
+            shareBuilder.setIcon(R.drawable.ic_share_click);
+            shareBuilder.setTitle(R.string.share);
+            View shareLayout = getActivity().getLayoutInflater().inflate(R.layout.share_dialog, null);
+            ImageButton shareVk = (ImageButton)shareLayout.findViewById(R.id.share_dialog_vkontakte);
+            ImageButton shareFacebook = (ImageButton) shareLayout.findViewById(R.id.share_dialog_facebook);
+            shareFacebook.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String link = NEWS_URL + musicSrv.getIdNews();
+                        String title = musicSrv.getSongTitle();
+                        String linkPicture = musicSrv.getNewsPictureUrl();
+                        linkPicture =  InternetHelper.toCorrectLink(linkPicture);
+                            ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
+                                    .setContentTitle(title)
+                                            // .setContentDescription(musicSrv.getSongContent())
+                                    .setContentUrl(Uri.parse(link))
+                                    .setImageUrl(Uri.parse(linkPicture))
+                                    .build();
+                            ShareDialog.show(getActivity(), shareLinkContent);
+                            if (shareDialog != null) {
+                                    shareDialog.dismiss();
+
+                            }
+
+                    }
+            });
+            shareVk.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                            String link = NEWS_URL + musicSrv.getIdNews();
+                            String title = musicSrv.getSongTitle();
+                            String linkPicture = musicSrv.getNewsPictureUrl();
+                        linkPicture= InternetHelper.toCorrectLink(linkPicture);
+                            vkontaktePublish(link, title, linkPicture);
+                            if (shareDialog != null) {
+                                    shareDialog.dismiss();
+
+                            }
+
+                    }
+            });
+            shareBuilder.setView(shareLayout);
+           /* shareDialog.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+            });*/
+            shareBuilder.setNegativeButton(R.string.btn_cancel,
+                    new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                            }
+                    });
+
+            shareDialog = shareBuilder.create();
+            shareDialog.show();
+         /*   String content  = musicSrv.getSongContent();
             String link = "http://213.231.4.68/music-web/app/php/page_show_news.php?id=" + musicSrv.getIdNews();
             String title = musicSrv.getSongTitle();
             String linkPicture = musicSrv.getNewsPictureUrl();
-            vkontaktePublish(content,link,title,linkPicture);
-       /* ShareLinkContent shareLinkContent = new ShareLinkContent.Builder()
-                .setContentTitle(musicSrv.getSongTitle())
-                .setContentDescription(musicSrv.getSongContent())
-                .setContentUrl(Uri.parse("http://213.231.4.68/music-web/app/php/page_show_news.php?id=" + musicSrv.getIdNews()))
-                .setImageUrl(Uri.parse(musicSrv.getNewsPictureUrl()))
-                .build();
-        ShareDialog.show(getActivity(), shareLinkContent);*/
+            vkontaktePublish(content, link, title, linkPicture);*/
+
       /*  Feed feed = new Feed.Builder()
                 .setName(musicSrv.getSongTitle())
                 .setDescription(musicSrv.getSongContent())
                 .setPicture(musicSrv.getNewsPictureUrl())
                 .setLink("http://213.231.4.68/music-web/app/php/page_show_news.php?id="+musicSrv.getIdNews())
                 .build();
-        mSimpleFacebook.publish(feed, true,onPublishListener);*/
+        mSimpleFacebook.publish(feed, true,onPublishListener);*//*
        /* Intent sharingIntent = new Intent(Intent.ACTION_SEND);
         Uri screenshotUri = Uri.parse(musicSrv.getNewsPictureUrl());
         sharingIntent.setType("image/png");
@@ -854,6 +930,7 @@ btnShare.setOnClickListener(new View.OnClickListener() {
         startActivity(Intent.createChooser(sharingIntent, "Share image using"));*/
         }
 });
+
 btnLike.setOnClickListener(new View.OnClickListener() {
 
     @Override
@@ -964,6 +1041,19 @@ btnLike.setOnClickListener(new View.OnClickListener() {
         });
     }
 });
+        btnComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent commentIntent = new Intent(getContext(), CommentActivity.class);
+                News n = PlayList.getInstance().getCurrent();
+                if(n == null || n.getId() == null)
+                {
+                    return;
+                }
+                commentIntent.putExtra(CommentActivity.ARG_NEWS_ID,n.getId());
+                startActivity(commentIntent);
+            }
+        });
         volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1126,6 +1216,9 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                 val = val * 100d;
                 return val.intValue();
         }*/
+
+
+
     public static String bbcode(String text) {
         String html = text;
 
@@ -1164,23 +1257,13 @@ btnLike.setOnClickListener(new View.OnClickListener() {
         return html;
     }
 
-    public final void vkontaktePublish(String message, String link, String linkName, String imageURL) {
-      /*  VKSdk.requestUserState(getActivity(), new VKPaymentsCallback() {
-            @Override
-            public void onUserState(final boolean userIsVk) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-//						Toast.makeText(TestActivity.this, userIsVk ? "user is vk's" : "user is not vk's", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        });*/
-        VKAccessToken token = VKAccessToken.tokenFromSharedPreferences(getActivity(), VKAccessToken.ACCESS_TOKEN);
-        if ((token == null) || token.isExpired()) {
+    public final void vkontaktePublish(String link, String linkName, String imageURL) {
 
+        VKAccessToken token = VKAccessToken.tokenFromSharedPreferences(getActivity(), VKAccessToken.ACCESS_TOKEN);
+            VKAccessToken curToken = VKAccessToken.currentToken();
+        if ((curToken == null) || curToken.isExpired()) {
             VKSdk.login(getActivity(), Constants.SCOPE);
-            Toast.makeText(getActivity(), "Требуется авторизация. После нее повторите попытку публикации", Toast.LENGTH_LONG).show();
+       //     Toast.makeText(getActivity(), "Требуется авторизация. После нее повторите попытку публикации", Toast.LENGTH_LONG).show();
         } else {
             //  Uri imageUri = Uri.parse(imageURL);
             //  Bitmap b = null;
@@ -1190,42 +1273,38 @@ btnLike.setOnClickListener(new View.OnClickListener() {
             //       e.printStackTrace();
             //   }
 
-            final Bitmap b = ImageLoader.getInstance().loadImageSync(imageURL);
+          //  final Bitmap b = ImageLoader.getInstance().loadImageSync(imageURL);
             // VKPhotoArray photos = new VKPhotoArray();
             // photos.add(new VKApiPhoto("photo-47200925_314622346"));
             new VKShareDialogBuilder()
-                    .setText(message)
-                            //   .setUploadedPhotos(photos)
-                    .setAttachmentImages(new VKUploadImage[]{new VKUploadImage(b, VKImageParameters.pngImage())})
+                  ////  .setText(message)
+                  //          //   .setUploadedPhotos(photos)
+                  //  .setAttachmentImages(new VKUploadImage[]{new VKUploadImage(b, VKImageParameters.pngImage())})
                     .setAttachmentLink(linkName, link)
+                    .setText(linkName)
+                            //.setText(link)
                     .setShareDialogListener(new VKShareDialog.VKShareDialogListener() {
 
-                        @Override
-                        public void onVkShareComplete(int postId) {
-                            //      recycleBitmap(b);
-                        }
+                            @Override
+                            public void onVkShareComplete(int postId) {
+                                    Toast.makeText(getActivity(), "Запись успешно опубликована", Toast.LENGTH_LONG).show();
 
-                        @Override
-                        public void onVkShareCancel() {
-                            //    recycleBitmap(b);
-                        }
+                            }
 
-                        @Override
-                        public void onVkShareError(VKError error) {
-                            //  recycleBitmap(b);
-                        }
+                            @Override
+                            public void onVkShareCancel() {
+                                    Toast.makeText(getActivity(), "Публикация отменена", Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onVkShareError(VKError error) {
+                                    Toast.makeText(getActivity(), "Произошла ошибка при публикации записи", Toast.LENGTH_LONG).show();
+                            }
                     }).show(getChildFragmentManager(), "VK_SHARE_DIALOG");
         }
     }
   //  }
-  private Bitmap getPhoto() {
-      try {
-          return BitmapFactory.decodeStream(getActivity().getAssets().open("android.jpg"));
-      } catch (IOException e) {
-          e.printStackTrace();
-          return null;
-      }
-  }
+
     private static void recycleBitmap(@Nullable final Bitmap bitmap) {
         if (bitmap != null) {
             bitmap.recycle();
@@ -1256,7 +1335,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                 }
             }
             volumeSeekBar.setProgress(musicSrv.getVolume());
-            playSong(getArguments().getString(MediaPlayerFragmentActivity.ARG_AUDIO_ID));
+                playSong(getArguments().getString(MediaPlayerFragmentActivity.ARG_AUDIO_ID));
 
         }
 
@@ -1265,7 +1344,6 @@ btnLike.setOnClickListener(new View.OnClickListener() {
             musicBound = false;
         }
     };
-
     public  void connectService()
     {
         if(playIntent==null){
@@ -1353,11 +1431,14 @@ btnLike.setOnClickListener(new View.OnClickListener() {
         {
             try
             {
-                currentId = PlayList.getInstance().getNewsList().get(musicSrv.getSongPosition()).getId();
-            }
-            catch (IndexOutOfBoundsException e)
-            {
-                e.printStackTrace();
+                  //  currentId = PlayList.getInstance().getNewsList().get(musicSrv.getSongPosition()).getId();
+
+                    News n = PlayList.getInstance().getCurrent();
+                    if (n != null) {
+                            currentId = n.getId();
+                    }
+            } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
             }
 
 
@@ -1396,7 +1477,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
      * */
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
-            Log.d(TAG, "update mediaTask");
+        //    Log.d(TAG, "update mediaTask");
             if(musicSrv != null) {
                 if (!musicSrv.isNullPlayer()) {
                     if (!musicSrv.isPaused()) {
@@ -1416,8 +1497,13 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                             }
                             songTitleLabel.setText(musicSrv.getSongTitle());
                                 songContent.setWebViewClient(new WebViewClient() {
+                                    @Override
                                         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                                                if (url != null && url.startsWith("http://")) {
+                                        if (url != null && url.contains("www.youtube"))
+                                        {
+                                            Log.d(TAG, "@@@@@@@@ url: " +url );
+                                        }
+                                                if (url != null && (url.startsWith("http://")||url.startsWith("https://"))) {
                                                         view.getContext().startActivity(
                                                                 new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                                                         return true;
@@ -1431,13 +1517,31 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                                 songContent.getSettings().setJavaScriptEnabled(true);
                                 songContent.getSettings().setPluginState(WebSettings.PluginState.ON);
                                 songContent.getSettings().setDefaultFontSize(16);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                                songContent.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING);
+                            } else {
+                                songContent.getSettings().setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
+                            }
+                            songContent.getSettings().setDefaultTextEncodingName("utf-8");
                                 songContent.setBackgroundColor(Color.TRANSPARENT);
                                // songContent.getSettings().setLoadWithOverviewMode(true);
                                 //songContent.getSettings().setUseWideViewPort(true);
-                                songContent.loadData(musicSrv.getSongContent(), "text/html; charset=utf-8", null);
+                            String content = musicSrv.getSongContent();
+                          /*  String base64 = null;
+                            try {
+                                base64 = Base64.encodeToString(unescaped.getBytes("UTF-8"), Base64.DEFAULT);
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                                base64= unescaped;
+                            }
+                            */
+                            content = correctHtml(content);
+                            songContent.loadData(getHtmlData(content), "text/html; charset=utf-8",null);
                            // songContent.setText(Html.fromHtml(bbcode(TEST_HTML)));
                          //   songContent.setText(musicSrv.getSongContent());
-                            imageLoader.displayImage(musicSrv.getNewsPictureUrl(), songImageView, DisplayImageLoaderOptions.getInstance());
+                            String newsPicture = musicSrv.getNewsPictureUrl();
+                            newsPicture = InternetHelper.toCorrectLink(newsPicture);
+                            imageLoader.displayImage(newsPicture, songImageView, DisplayImageLoaderOptions.getInstance());
                             newsDate.setText(utils.getDateTimeFormat(musicSrv.getNewsDate()));
                             newSongValue = musicSrv.getNewSongValue();
                         }
@@ -1457,7 +1561,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                         // Updating progress bar
                         int progress = (utils.getProgressPercentage(currentDuration, totalDuration));
                         //Log.d("Progress", ""+progress);
-                        Log.d(TAG, "Progress " + progress + " bufferedProgress "+musicSrv.getBufferPosition());
+                   //     Log.d(TAG, "Progress " + progress + " bufferedProgress "+musicSrv.getBufferPosition());
                         songProgressBar.setProgress(progress);
                         songProgressBar.setSecondaryProgress(musicSrv.getBufferPosition());
 
@@ -1468,6 +1572,37 @@ btnLike.setOnClickListener(new View.OnClickListener() {
                mHandler.postDelayed(this, 100);
         }
     };
+    private String getHtmlData(String bodyHTML) {
+        String head = "<head><style>img{max-width: 100%; width:auto; height: auto;}</style></head>";
+        return "<html>" + head + "<body>" + bodyHTML + "</body></html>";
+    }
+    String correctHtml(String html)
+    {
+        StringBuffer replacedBuf = new StringBuffer(html.length());
+
+        for(char c : html.toCharArray()) {
+            switch(c) {
+                case '#' :
+                    replacedBuf.append("%23");
+                    break;
+                case '%':
+                    replacedBuf.append("%25");
+                    break;
+                case '\'':
+                    replacedBuf.append("%27");
+                    break;
+                case '?':
+                    replacedBuf.append("%3f");
+                    break;
+                default:
+                    replacedBuf.append(c);
+            }
+        }
+        String escaped =replacedBuf.toString();
+        String unescaped = StringEscapeUtils.unescapeHtml4(escaped);
+        return unescaped;
+    }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
 

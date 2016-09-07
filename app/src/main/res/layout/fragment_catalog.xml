@@ -53,13 +53,16 @@
         android:layout_marginRight="@dimen/outer_margin_big"
         android:layout_weight="1"/>
 
-    <android.support.v4.view.ViewPager
+    <ImageView
         android:id="@+id/ad_container"
-        android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:background="@drawable/test_ad"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/ad_size"
+
         android:layout_marginLeft="@dimen/outer_margin_big"
         android:layout_marginRight="@dimen/outer_margin_big"
-        android:layout_marginBottom="@dimen/outer_margin_big"/>
+        android:layout_marginBottom="@dimen/outer_margin_big"
+        android:visibility="visible"
+        android:src="@drawable/banner"
+        android:scaleType="centerInside"/>
 
 </LinearLayout>

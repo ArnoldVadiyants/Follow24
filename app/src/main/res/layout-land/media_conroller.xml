@@ -80,61 +80,56 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="75dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/news_content_layout"
                 android:layout_weight="0"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/outer_margin">
 
                 <ImageView
                     android:layout_width="@dimen/picture_size"
-                    android:layout_height="@dimen/picture_width"
+                    android:layout_height="72dp"
                     android:id="@+id/canal_imageView"
                     android:background="@android:color/transparent"
                     android:scaleType="centerCrop"
                     tools:src="@drawable/test_canal_icon"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_gravity="top"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginRight="@dimen/outer_margin_medium"/>
 
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:id="@+id/date_TextView"
+                    android:textAllCaps="true"
+                    tools:text="25.12.2016 , 16:03"
+                    android:layout_weight="0"
+                    android:layout_gravity="bottom|right"
+                    android:textSize="14dp"
+                    android:layout_alignParentLeft="false"
+                    android:layout_alignParentTop="false"
+                    android:layout_alignParentBottom="false"
+                    android:layout_below="@+id/title_TextView"
+                    android:layout_alignParentRight="true"/>
 
-                    <ScrollView
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:id="@+id/scrollView3">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    tools:text="Republican presidential front-runner Donald Trump has accused China of &quot;raping&quot; the US, in renewed criticism of sdgs sdgsdg sdhs China&apos;s trade policy."
+                    android:id="@+id/title_TextView"
+                    android:textColor="@color/colorPrimary"
+                    android:textStyle="bold"
+                    android:ellipsize="end"
+                    android:layout_toRightOf="@+id/canal_imageView"
+                    android:layout_marginBottom="@dimen/outer_margin_medium"
+                    android:layout_marginTop="-4dp"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?android:attr/textAppearanceSmall"
-                            tools:text="Republican presidential front-runner Donald Trump has accused China of &quot;raping&quot; the US, in renewed criticism of China&apos;s trade policy."
-                            android:id="@+id/title_TextView"
-                            android:textColor="@color/colorPrimary"
-                            android:textAllCaps="false"
-                            android:layout_marginLeft="@dimen/outer_margin_medium"
-                            android:textStyle="bold"
-                        />
-                    </ScrollView>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearanceSmall"
-                        android:id="@+id/date_TextView"
-                        android:textColor="@color/colorPrimary"
-                        android:textAllCaps="true"
-                        android:layout_marginLeft="@dimen/outer_margin_medium"
-                        android:layout_marginTop="@dimen/outer_margin_medium"
-                       tools:text="25.12.2016 , 16:03"
-                        android:layout_weight="0"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
+            </RelativeLayout>
             <WebView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -214,8 +209,23 @@
             android:id="@+id/like_imageButton"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_like"
-            android:scaleType="fitXY"
-            android:padding="6dp"/>
+            android:scaleType="centerInside"
+            android:paddingLeft="4dp"
+            android:paddingTop="6dp"
+            android:paddingRight="8dp"
+            android:paddingBottom="6dp"/>
+
+        <ImageButton
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:id="@+id/comment_imageButton"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_comment"
+            android:scaleType="centerInside"
+            android:paddingLeft="8dp"
+            android:paddingTop="6dp"
+            android:paddingRight="4dp"
+            android:paddingBottom="6dp"/>
 
         <ImageButton
             android:layout_width="@dimen/icon_size"
@@ -224,10 +234,10 @@
             android:layout_gravity="center_vertical"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_share_click"
-            android:scaleType="fitXY"
+            android:scaleType="centerInside"
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
-            android:paddingLeft="12dp"/>
+            android:paddingLeft="10dp"/>
 
     </LinearLayout>
 

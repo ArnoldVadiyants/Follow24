@@ -21,7 +21,6 @@ public class AudioLab {
 
 
     private List<Audio> mAudio = new ArrayList<>();
-    private IDataLoading mIDataLoading;
     private static AudioLab sAudioLab;
     private Context mAppContext;
     private Gson gson = new GsonBuilder().create();
@@ -30,13 +29,13 @@ public class AudioLab {
             .baseUrl(NewsTeeApiInterface.BASE_URL)
             .build();
     private NewsTeeApiInterface newsTeeApiInterface = retrofit.create(NewsTeeApiInterface.class);
-    private AudioLab(/*Context appContext, IDataLoading iDataLoading*/) {
+    private AudioLab(/*Context appContext, NewsTeeDataLoader iDataLoading*/) {
     /*    mAppContext = appContext;
         mIDataLoading = iDataLoading;
         loadAudio();*/
     }
 
-    public static AudioLab getInstance(/*Context context, IDataLoading iDataLoading*/){
+    public static AudioLab getInstance(/*Context context, NewsTeeDataLoader iDataLoading*/){
         if (sAudioLab == null) {
             sAudioLab = new AudioLab(/*context.getApplicationContext(), iDataLoading*/);
         }

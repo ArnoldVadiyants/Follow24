@@ -10,7 +10,7 @@ import java.util.TimeZone;
  * Created by Arnold on 03.05.2016.
  */
 public class MPUtilities {
-    public static final String DATE_TIME_FORMAT = "dd.MM.yyyy ,  HH:mm";
+    public static final String DATE_TIME_FORMAT = "dd.MM.yyyy, HH:mm";
     public static final String DATE_FORMAT = "dd.MM.yyyy";
     public static final String TIME_FORMAT = "HH:mm";
     /**
@@ -103,8 +103,10 @@ int value=  percentage.intValue();
     }
 
     public String getDateOrTimeFormat(long milliseconds) {
-        Calendar cal = Calendar.getInstance();
-        TimeZone tz = cal.getTimeZone();
+        Calendar calToday = Calendar.getInstance();
+        TimeZone tz = calToday.getTimeZone();
+        Calendar calYesterday = Calendar.getInstance(); // today
+        calYesterday.add(Calendar.DAY_OF_YEAR, -1); // yesterday
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_TIME_FORMAT);
         dateFormat.setTimeZone(tz);
         Date d = new Date(milliseconds);
@@ -117,10 +119,12 @@ int value=  percentage.intValue();
             cal2.setTime(d);
         }
         SimpleDateFormat dateFormat1;
-        if (cal.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
-                && cal.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+        if (calToday.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && calToday.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
             dateFormat1 = new SimpleDateFormat(TIME_FORMAT);
-
+        } else if (calYesterday.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && calYesterday.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)) {
+            dateFormat1 = new SimpleDateFormat(DATE_TIME_FORMAT);
         } else {
             dateFormat1 = new SimpleDateFormat(DATE_FORMAT);
         }
@@ -128,12 +132,12 @@ int value=  percentage.intValue();
         return dateFormat1.format(d);
 
     }
-    public String getDateOrTimeFormat(String seconds)
-    { long l;
+
+    public String getDateOrTimeFormat(String seconds) {
+        long l;
         try {
-            l =  Long.parseLong(seconds)* 1000L;
-        }catch (NumberFormatException e)
-        {
+            l = Long.parseLong(seconds) * 1000L;
+        } catch (NumberFormatException e) {
             return "";
         }
 

@@ -1,6 +1,7 @@
 package com.newstee;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -19,6 +21,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.newstee.helper.InternetHelper;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.model.data.DataUpdateUser;
 import com.newstee.model.data.UserLab;
@@ -26,11 +29,7 @@ import com.newstee.network.FactoryApi;
 import com.newstee.utils.DisplayImageLoaderOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 
 import okhttp3.MediaType;
@@ -65,23 +64,32 @@ ImageView avatarImgView;
         avatarImgView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                selectImage();
+                /*final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
-                startActivityForResult(intent, CAPTURE_IMAGE);
+                startActivityForResult(intent, CAPTURE_IMAGE);*/
             }
         });
 
 
         backgroundImgView =(ImageView)findViewById(R.id.edit_profile_back_imgView);
-        /*backgroundImgView.setOnClickListener(new View.OnClickListener() {
+       // backgroundImgView.setVisibility(View.VISIBLE);
+        backgroundImgView.setOnClickListener(new View.OnClickListener() {
 
             @Override
                 public void onClick(View v) {
-                    final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+      /*              final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
-                    startActivityForResult(intent, CAPTURE_IMAGE);
+                    startActivityForResult(intent, CAPTURE_IMAGE);*/
+             /*   Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                getIntent.setType("image*//*");
+                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                pickIntent.setType("image*//*");
+                Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+                startActivityForResult(chooserIntent, PICK_IMAGE);*/
             }
-        });*/
+        });
         /*avatarImgView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +105,7 @@ ImageView avatarImgView;
         String avatar = UserLab.getInstance().getUser().getAvatar();
         if(avatar != null)
         {
+            avatar = InternetHelper.toCorrectLink(avatar);
             imageLoader.displayImage(avatar, avatarImgView, DisplayImageLoaderOptions.getRoundedInstance());
             imageLoader.displayImage(avatar,backgroundImgView, DisplayImageLoaderOptions.getInstance());
 
@@ -149,6 +158,7 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
     call.enqueue(new Callback<DataUpdateUser>() {
         @Override
         public void onResponse(Call<DataUpdateUser> call, Response<DataUpdateUser> response) {
+
             if(response.body().getResult().equals(Constants.RESULT_SUCCESS))
             {
                 UserLab.getInstance().getUser().setAvatar(response.body().getData().getAvatar());
@@ -161,7 +171,7 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
             }
             else
             {
-                Toast.makeText(getApplicationContext(), R.string.update_data_failure, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),response.body().getMessage(), Toast.LENGTH_LONG).show();
 
                 result[0] =  false;
                 Log.d(TAG, "@@@@@@ Message " + response.body().getMessage());
@@ -182,9 +192,36 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_CANCELED) {
+            Bitmap yourSelectedImage = null;
             if (requestCode == PICK_IMAGE) {
-                Bitmap bitmap;
-                Uri uri = data.getData();
+                if(data == null)
+                {
+                    return;
+                }
+                if(data.getData() == null)
+                {
+                    return;
+                }
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    Cursor cursor = getContentResolver().query(
+                            selectedImage, filePathColumn, null, null, null);
+                if(cursor == null)
+                {
+                    return;
+                }
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                selectedImagePath = cursor.getString(columnIndex);
+                 //   String filePath = cursor.getString(columnIndex);
+                    cursor.close();
+
+
+                   yourSelectedImage = BitmapFactory.decodeFile(selectedImagePath);
+             //   backgroundImgView.setImageBitmap(yourSelectedImage);
+           //     Bitmap bitmap;
+            //    Uri uri = data.getData();
               //  String strUri = getAbsolutePath(uri);
 /*File f = new File(strUri);
                 Uri uri = */
@@ -192,7 +229,7 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
                /* if (strUri.contains("document") || strUri.contains("mediaKey") || strUri.contains("content://") ||
                         //if(sourcePath.startsWith("/document") || sourcePath.startsWith("/mediaKey") ||
                         Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {*/
-                    int read;
+               /*     int read;
                     byte[] buffer;
                     InputStream fileInputStream;
                     ByteArrayOutputStream byteArrayOutputStream;
@@ -221,18 +258,78 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
                         e.printStackTrace();
                     }
 
-
+*/
 
               //  }
             }else if (requestCode == CAPTURE_IMAGE) {
                 selectedImagePath = getImagePath();
-                avatarImgView.setImageBitmap(decodeFile(selectedImagePath));
-                backgroundImgView.setImageBitmap(decodeFile(selectedImagePath));
+            //    avatarImgView.setImageBitmap(decodeFile(selectedImagePath));
+                 yourSelectedImage = decodeFile(selectedImagePath);
+              //  backgroundImgView.setImageBitmap(yourSelectedImage);
             } else {
                 super.onActivityResult(requestCode, resultCode, data);
             }
+            if(yourSelectedImage == null)
+            {
+                return;
+            }
+            Bitmap profileBitmap  = Bitmap.createScaledBitmap(yourSelectedImage, 120, 120, false);
+            avatarImgView.setImageBitmap(profileBitmap);
         }
 
+    }
+    private void takePhoto()
+    {
+        final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
+        startActivityForResult(intent, CAPTURE_IMAGE);
+    }
+    private void chooseFromGallery()
+    {
+        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        getIntent.setType("image/*");
+
+        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        pickIntent.setType("image/*");
+
+        Intent chooserIntent = Intent.createChooser(getIntent, getString(R.string.btn_choose_from_gallery));
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] {pickIntent});
+
+        startActivityForResult(chooserIntent, PICK_IMAGE);
+       /*
+        Intent intent = new Intent();
+        intent.setType("image*//*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.btn_choose_from_gallery)), PICK_IMAGE);*/
+    }
+
+    private void selectImage()
+    {
+        final CharSequence[] items = {getString(R.string.btn_choose_from_gallery), getString(R.string.btn_take_photo)};
+        AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
+        builder.setTitle(getString(R.string.title_photo));
+        builder.setNegativeButton(R.string.btn_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+               // boolean result= Utility.checkPermission(MainActivity.this);
+               if(item == 0) {
+                   chooseFromGallery();
+               }
+                else if(item == 1) {
+                   takePhoto();
+               }
+                else {
+               }
+
+            }
+        });
+        builder.show();
     }
 
 

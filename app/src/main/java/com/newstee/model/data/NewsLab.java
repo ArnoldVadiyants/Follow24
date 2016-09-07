@@ -4,8 +4,6 @@ package com.newstee.model.data;
  * Created by Arnold on 09.04.2016.
  */
 
-import android.content.Context;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.newstee.Constants;
@@ -21,12 +19,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class NewsLab {
 
     private List<News> mNews = new ArrayList<>();
+    private List<News> mArticles = new ArrayList<>();
 
 
+
+    private List<News> mStories = new ArrayList<>();
     private List<News> mRecommendedNews = new ArrayList<>();
     private static NewsLab sNewsLab;
-    private IDataLoading mIDataLoading;
-    private Context mAppContext;
     private Gson gson = new GsonBuilder().create();
     private Retrofit retrofit = new Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
@@ -58,18 +57,55 @@ public class NewsLab {
         this.mRecommendedNews = mRecommendedNews;
     }
 
-       public List<News> getNews() {
-        return mNews;
+       public List<News> getNews(String type) {
+           if (type.equals(Constants.CATEGORY_NEWS)) {
+               return mNews;
+           } else if (type.equals(Constants.CATEGORY_STORY)) {
+               return mStories;
+           } else if (type.equals(Constants.CATEGORY_ARTICLE)) {
+               return mArticles;
+           }
+           else
+           {
+               return new ArrayList<>();
+           }
+
     }
-    public void addNewses(List<News> news) {
-      mNews.addAll(news);
+    public List<News> getNews() {
+        ArrayList<News>allNews = new ArrayList<>();
+        allNews.addAll(mNews);
+        allNews.addAll(mArticles);
+        allNews.addAll(mStories);
+        return allNews;
     }
-    public void setNews(List<News> News) {
-        this.mNews = News;
+    public void addNewses(List<News> news,String type) {
+        if (type.equals(Constants.CATEGORY_NEWS)) {
+           mNews.addAll(news);
+        } else if (type.equals(Constants.CATEGORY_STORY)) {
+            mStories.addAll(news);
+
+        } else if (type.equals(Constants.CATEGORY_ARTICLE)) {
+            mArticles.addAll(news);
+
+        }
+    }
+
+    public void setNews(List<News> news, String type) {
+
+        if (type.equals(Constants.CATEGORY_NEWS)) {
+            this.mNews = news;
+        } else if (type.equals(Constants.CATEGORY_STORY)) {
+            this.mStories = news;
+
+        } else if (type.equals(Constants.CATEGORY_ARTICLE)) {
+            this.mArticles = news;
+
+        }
     }
 
     public News getNewsItem(String id) {
-        for (News n : mNews) {
+        List<News> news = getNews();
+        for (News n : news) {
             if (n == null) {
                 continue;
             }
@@ -91,6 +127,9 @@ public class NewsLab {
         }
         return null;
     }
+
+
+
     public List<News> getNewsByTags(List<String>tags) {
         return getNewsByTags( tags,mNews);
     }
@@ -110,11 +149,8 @@ public class NewsLab {
     }
     public List<News> getNewsAndArticles() {
         List<News> news = new ArrayList<>();
-        for (News n : mNews) {
-            if (!n.getCategory().equals(Constants.CATEGORY_STORY)) {
-                news.add(n);
-            }
-        }
+       news.addAll(mNews);
+        news.addAll(mArticles);
         return news;
     }
 
@@ -127,7 +163,7 @@ public class NewsLab {
 
         @Override
         protected DataNews doInBackground(String... params) {
-            TagLab.getInstance(mAppContext, new IDataLoading() {
+            TagLab.getInstance(mAppContext, new NewsTeeDataLoader() {
                 @Override
                 public void onPreLoad() {
 
@@ -138,7 +174,7 @@ public class NewsLab {
 
                 }
             });
-            AuthorLab.getInstance(mAppContext, new IDataLoading() {
+            AuthorLab.getInstance(mAppContext, new NewsTeeDataLoader() {
                 @Override
                 public void onPreLoad() {
 
@@ -149,7 +185,7 @@ public class NewsLab {
 
                 }
             });
-            AudioLab.getInstance(mAppContext, new IDataLoading() {
+            AudioLab.getInstance(mAppContext, new NewsTeeDataLoader() {
                 @Override
                 public void onPreLoad() {
 

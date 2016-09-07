@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/share_dialog_vkontakte"
+        android:src="@drawable/vkontakte_logo"
+        android:background="@android:color/transparent"
+        android:scaleType="centerInside"
+        android:layout_marginLeft="@dimen/outer_margin_big"
+        android:layout_marginTop="@dimen/outer_margin_big"
+        android:layout_marginRight="@dimen/outer_margin_medium"
+        android:layout_weight="1"
+        android:adjustViewBounds="true"/>
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/share_dialog_facebook"
+        android:src="@drawable/facebook_logo"
+        android:scaleType="centerInside"
+        android:background="@android:color/transparent"
+        android:layout_weight="1"
+        android:layout_marginRight="@dimen/outer_margin_big"
+        android:layout_marginTop="@dimen/outer_margin_big"
+        android:adjustViewBounds="true"
+        android:layout_marginLeft="@dimen/outer_margin_medium"/>
+</LinearLayout>

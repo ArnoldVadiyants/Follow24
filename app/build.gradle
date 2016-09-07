@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    buildToolsVersion '24'
 
     defaultConfig {
         applicationId "com.newstee"
         minSdkVersion 15
         targetSdkVersion 23
-        versionCode 18
-        versionName "1.1.8"
+        versionCode 30
+        versionName "1.3.0"
     }
     buildTypes {
         release {
@@ -38,6 +38,8 @@ dependencies {
     compile 'com.sromku:simple-fb:4.1.1'
     compile 'com.google.android.gms:play-services-auth:9.0.0'
     compile 'com.google.firebase:firebase-messaging:9.0.0'
+    compile 'org.apache.commons:commons-lang3:3.4'
+    compile 'com.github.orangegangsters:swipy:1.2.3@aar'
     compile project(':vksdk_library')
 }
 apply plugin: 'com.google.gms.google-services'

@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <ListPreference     android:title="Страна"
+   <ListPreference     android:title="Страна"
                         android:summary="Выберите страну в которой Вы находитесь, от этого будет зависеть список изданий"
                         android:key="country"
-                        android:defaultValue="0"
+                        android:defaultValue="2"
                         android:entries="@array/listArray"
                         android:entryValues="@array/listValues" />
     <CheckBoxPreference android:title="Воспроизведение"
                         android:defaultValue="false"
-                        android:summary="Открывать NewsTee в авто-режиме"
+                        android:summary="Открывать AFM.news в авто-режиме"
                         android:key="car_mode" />
     <CheckBoxPreference android:title="Уведомление"
                         android:defaultValue="true"
                         android:summary="Push-уведомления"
                         android:key="notifications" />
+  <Preference android:title="Перейти на сайт разработчика"
+              android:key="link_to_site"></Preference>
+
+
 </PreferenceScreen>
