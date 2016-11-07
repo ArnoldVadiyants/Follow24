@@ -80,7 +80,6 @@ private View mediaPlayer;
      * The {@link ViewPager} that will host the section contents.
      */
      private MPUtilities utils;
-
     private ImageLoader imageLoader = ImageLoader.getInstance();
     private FrameLayout mProgress;
     private ViewPager mViewPager;
@@ -157,7 +156,6 @@ private View mediaPlayer;
             }
         });
         mScrollView = mPullToRefresh.getRefreshableView();*/
-
         mProgress = (FrameLayout)findViewById(R.id.main_progress);
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setOnTouchListener(new View.OnTouchListener() {
@@ -266,6 +264,7 @@ private View mediaPlayer;
 
                 @Override
                 void showContent() {
+
                     showContentData();
                 }
             }.execute();
@@ -369,6 +368,7 @@ D
 
     private void showContentData() {
         // Set up the ViewPager with the sections adapter.
+
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
@@ -561,6 +561,7 @@ D
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        
         MenuItem logMenu = menu.findItem(R.id.action_logout);
         if(session.isLoggedIn())
         {
@@ -623,13 +624,13 @@ D
                                 }
                                 else
                                 {
-                                    Toast.makeText(getApplicationContext(),"Fail"+ msg, Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "Fail" + msg, Toast.LENGTH_SHORT).show();
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<DataPost> call, Throwable t) {
-Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
 
@@ -648,6 +649,7 @@ Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show(
             }
             else
             {
+                UserLab.getInstance().deleteData();
                 startActivity(new Intent(MainActivity.this, WelcomeActivity.class));
                 finish();
             }
@@ -661,7 +663,13 @@ Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_LONG).show(
     @Override
     public void updateData() {
         Log.d(TAG, "@@@@@@@ MainActivity implements");
-        profileFragment.updatePager();
+        try {
+            profileFragment.updatePager();
+
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

@@ -21,7 +21,6 @@
                 android:layout_width="@dimen/thread_media_player_picture_width"
                 android:layout_height="@dimen/thread_media_player_picture_height"
                 android:id="@+id/media_player_small_picture_ImageView"
-                tools:background="@drawable/test_canal_icon"
                 android:scaleType="centerCrop"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="12dp"/>

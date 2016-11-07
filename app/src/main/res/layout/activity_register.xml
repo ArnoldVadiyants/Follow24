@@ -22,7 +22,9 @@
         android:orientation="vertical"
         android:paddingLeft="42dp"
         android:paddingRight="42dp"
-        android:background="@drawable/back_gray_2gradient">
+        android:background="@drawable/back_gray_2gradient"
+
+        >
 
         <FrameLayout
             android:layout_width="match_parent"

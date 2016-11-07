@@ -30,14 +30,15 @@ public class UserLab {
     public List<News> getRecentNews() {
         return mRecentNews;
     }
-    public void addRecentNews(News recentNews,Context context) {
-        String idRecent =recentNews.getId();
+
+    public void addRecentNews(News recentNews, Context context) {
+        String idRecent = recentNews.getId();
         News news = NewsLab.getInstance().getNewsItem(idRecent, mRecentNews);
         String recentIdsArray = "";
 
         if (news == null) {
             if (mRecentNews.size() == 10) {
-                    mRecentNews.remove(0);
+                mRecentNews.remove(0);
             }
             mRecentNews.add(recentNews);
         } else {
@@ -54,27 +55,32 @@ public class UserLab {
         }
         setRecentNewsIdsFromDevice(recentIdsArray, context);
     }
+
     public void setRecentNews(List<News> mRecentNews) {
         this.mRecentNews = mRecentNews;
     }
+
     public String getRecentNewsIdsFromDevice(Context context) {
         return new SessionManager(context).getRecentIds();
     }
-    private void setRecentNewsIdsFromDevice(String recentIds, Context context)
-    {
+
+    private void setRecentNewsIdsFromDevice(String recentIds, Context context) {
         new SessionManager(context).setRecentIds(recentIds);
     }
 
     public boolean isUpdated() {
         return isUpdated;
     }
+
     //private Context mAppContext;
-    public void setIsUpdated(boolean isUpdated) {
+    public void setUpdated(boolean isUpdated) {
         this.isUpdated = isUpdated;
     }
+
     public List<News> getAddedNews() {
         return mAddedNews;
     }
+
     public News getAddedNewsItem(String idNews) {
         for (News n : mAddedNews) {
             if (n.getId().equals(idNews)) {
@@ -83,12 +89,13 @@ public class UserLab {
         }
         return null;
     }
+
     public void setAddedNews(List<News> addedNews) {
 
         mAddedNews.clear();
         mAddedNews.addAll(addedNews);
         deleteNullNews(mAddedNews);
-        Collections.sort(mAddedNews,new NewsComparator());
+        sortNewsByDate(mAddedNews);
     }
 
     public List<News> getLikedNews() {
@@ -99,8 +106,7 @@ public class UserLab {
         mLikedNews.clear();
         mLikedNews.addAll(likedNews);
         deleteNullNews(mLikedNews);
-        Collections.sort(mLikedNews,new NewsComparator());
-
+   //     sortNewsReverse(mLikedNews);
     }
 
     public List<Tag> getAddedTags() {
@@ -153,7 +159,7 @@ public class UserLab {
     private User mUser = new User();
     private static UserLab sUserLab;
 
-    private UserLab( ) {
+    private UserLab() {
 
 
     }
@@ -164,8 +170,8 @@ public class UserLab {
         }
         return sUserLab;
     }
-    public void deleteNews(String id )
-    {
+
+    public void deleteNews(String id) {
         News n = null;
         for (News n2 : mAddedNews) {
             if (n2.getId().trim().equals(id)) {
@@ -180,8 +186,7 @@ public class UserLab {
     }
 
     public void addNews(News news) {
-        if(news == null)
-        {
+        if (news == null) {
             return;
         }
         String id = news.getId().trim();
@@ -199,7 +204,7 @@ public class UserLab {
         } else {
             mAddedNews.remove(n);
         }
-        Collections.sort(mAddedNews,new NewsComparator());
+        sortNewsByDate(mAddedNews);
     }
 
     public void addTag(Tag tag) {
@@ -222,8 +227,7 @@ public class UserLab {
     }
 
     public boolean likeNews(News news, Context context) {
-        if(news == null)
-        {
+        if (news == null) {
             return false;
         }
         String id = news.getId().trim();
@@ -238,25 +242,22 @@ public class UserLab {
             if (n == null) {
 
                 mLikedNews.add(news);
-                Collections.sort(mLikedNews,new NewsComparator());
+        //        sortNewsReverse(mLikedNews);
             } else {
                 mLikedNews.remove(n);
             }
         } else {
-            if (likeNewsToDevice(id, context))
-            {
+            if (likeNewsToDevice(id, context)) {
                 mLikedNews.add(news);
-                Collections.sort(mLikedNews,new NewsComparator());
-            }
-            else
-            {
+         //       sortNewsReverse(mLikedNews);
+            } else {
                 return false;
             }
         }
-return true;
+        return true;
     }
 
-    private boolean likeNewsToDevice(String id,Context context) {
+    private boolean likeNewsToDevice(String id, Context context) {
         boolean isContent = false;
         String likedIds = new SessionManager(context).getLikedIds();
         String likedIdsArray[] = likedIds.split(",");
@@ -274,8 +275,17 @@ return true;
             saveLikedNewsToDevice(likedIds, context);
             return true;
         }
-return false;
+        return false;
 
+    }
+
+    public static void sortNewsByDate(List<News> news) {
+        Collections.sort(news, new NewsComparator());
+
+    }
+
+    public static void sortNewsReverse(List<News> news) {
+        Collections.reverse(news);
     }
 
     public List<News> getAddedNewsAndArticles() {
@@ -356,34 +366,35 @@ return false;
         }
         news.removeAll(nullNews);
     }
+
     public String getLikedNewsFromDevice(Context context) {
         return new SessionManager(context).getLikedIds();
     }
-      /*  NewsIntentJSONSerializer serializer = new NewsIntentJSONSerializer(mAppContext, LIKED_FILENAME);
-        String likedIdList = "";
-       // LinkedHashSet<String>likedIdList = new LinkedHashSet<>();
-        try {
-            JSONArray array = serializer.loadLkedNewsId();
-            for (int i = 0; i < array.length(); i++) {
-                if(i == 0)
-                {
 
-                }
-                likedIdList = likedIdList.concat(","+(array.getJSONObject(i)).getString(JSON_LIKED));
-                likedIdList.add();
-            }
-            Log.d(TAG, "loading reminders: ");
-        } catch (Exception e) {
-            Log.e(TAG, "Error loading reminders: ", e);
-        }
-        String s[];
+    /*  NewsIntentJSONSerializer serializer = new NewsIntentJSONSerializer(mAppContext, LIKED_FILENAME);
+      String likedIdList = "";
+     // LinkedHashSet<String>likedIdList = new LinkedHashSet<>();
+      try {
+          JSONArray array = serializer.loadLkedNewsId();
+          for (int i = 0; i < array.length(); i++) {
+              if(i == 0)
+              {
 
-        String s = s.
-        return likedIdList;
+              }
+              likedIdList = likedIdList.concat(","+(array.getJSONObject(i)).getString(JSON_LIKED));
+              likedIdList.add();
+          }
+          Log.d(TAG, "loading reminders: ");
+      } catch (Exception e) {
+          Log.e(TAG, "Error loading reminders: ", e);
+      }
+      String s[];
 
-    }*/
-    private void saveLikedNewsToDevice(String likedIds, Context context)
-    {
+      String s = s.
+      return likedIdList;
+
+  }*/
+    private void saveLikedNewsToDevice(String likedIds, Context context) {
         new SessionManager(context).setLikedIds(likedIds);
     }
         /*NewsIntentJSONSerializer serializer = new NewsIntentJSONSerializer(mAppContext, LIKED_FILENAME);

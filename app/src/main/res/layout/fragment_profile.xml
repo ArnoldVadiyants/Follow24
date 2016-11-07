@@ -89,7 +89,7 @@
         android:layout_weight="0"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/outer_margin"
-        android:visibility="gone"/>
+        android:visibility="invisible"/>
 
     <LinearLayout
             android:orientation="horizontal"
@@ -180,7 +180,6 @@
             style="@style/MyCustomTabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             app:tabBackground="@android:color/transparent"
             app:tabIndicatorColor="@color/colorPrimary"
             app:tabIndicatorHeight="4dp"

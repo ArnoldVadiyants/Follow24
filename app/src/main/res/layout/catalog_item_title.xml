@@ -1,49 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.newstee.model.data.TagItem"/>
+
+        <variable
+            name="onClick"
+            type="android.view.View.OnClickListener"/>
+    </data>
+
+    <RelativeLayout
         android:id="@+id/catalog_feed"
-        android:layout_gravity="center_vertical">
 
-        <ImageView
-            android:layout_width="@dimen/icon_size_medium"
-            android:layout_height="@dimen/icon_size_medium"
-            android:id="@+id/canal_icon_ImageVew"
-            android:layout_gravity="left|center_vertical"
-            android:layout_marginRight="@dimen/icon_margin"
-            android:scaleType="center"/>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/outer_margin_medium"
+        android:paddingBottom="@dimen/outer_margin"
+        android:paddingRight="@dimen/outer_margin">
+
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="National Geographic"
-            android:textColor="@color/colorPrimary"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textAllCaps="true"
             android:id="@+id/title_TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="@dimen/icon_size_big"
+            android:layout_toEndOf="@+id/canal_icon_ImageVew"
+            android:layout_toLeftOf="@+id/catalog_item_add_ImageButton"
+            android:layout_toRightOf="@+id/canal_icon_ImageVew"
             android:layout_weight="1"
-            android:layout_marginRight="@dimen/icon_margin"
-            android:layout_gravity="center_vertical"/>
-    </LinearLayout>
+            android:onClick="@{onClick}"
+            android:text="@{item.title}"
+            android:textAllCaps="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorPrimary"
+            android:textStyle="bold"
+            tools:text="National Geographic sdgsdg sdg sd sdg swd asgf asdg asd sdag s"/>
 
+        <ImageButton
+            android:id="@+id/catalog_item_add_ImageButton"
+            android:layout_width="@dimen/icon_size_big"
+            android:layout_height="@dimen/icon_size_big"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="false"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:background="@android:color/transparent"
+            android:focusableInTouchMode="false"
+            android:onClick="@{onClick}"
+            android:padding="10dp"
+            android:scaleType="fitXY"
+            android:src="@{item.buttonSrc}"
+            />
+        <!--
+            android:src="@{item.isAdded ? R.drawable.ic_is_added :  R.drawable.news_to_add_button}"
+        -->
 
-    <ImageButton
-        android:layout_width="@dimen/icon_size_big"
-        android:layout_height="@dimen/icon_size_big"
-        android:id="@+id/catalog_item_add_ImageButton"
-        android:layout_marginLeft="@dimen/icon_margin"
-        android:layout_gravity="center_vertical"
-        android:scaleType="fitXY"
-        android:src="@drawable/news_to_add_button"
-        android:background="@android:color/transparent"
-        android:padding="10dp"
-        android:focusableInTouchMode="false"/>
-</LinearLayout>
+        <!--  android:background="@android:color/transparent"-->
+        <ImageView
+            android:id="@+id/canal_icon_ImageVew"
+            android:layout_width="@dimen/icon_size_medium"
+            android:layout_height="@dimen/icon_size_medium"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="left|center_vertical"
+            android:scaleType="center"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+</layout>

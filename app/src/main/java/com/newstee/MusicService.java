@@ -546,6 +546,7 @@ public class MusicService extends Service implements
         paused = false;
         updateNewSongValue();
         showNotification();
+        addViewToNews(idNews);
         UserLab.getInstance().addRecentNews(n, getApplicationContext());
         if (!InternetHelper.getInstance(getApplicationContext()).isOnline()) {
             Toast.makeText(getApplicationContext(), getApplicationContext().getResources().getString(R.string.check_internet_con), Toast.LENGTH_LONG).show();
@@ -564,7 +565,6 @@ public class MusicService extends Service implements
                 public void onResponse(Call<DataPost> call, Response<DataPost> response) {
                     if (response.body().getResult().equals(Constants.RESULT_SUCCESS)) {
 
-
                     } else {
                         Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
                     }
@@ -572,11 +572,32 @@ public class MusicService extends Service implements
 
                 @Override
                 public void onFailure(Call<DataPost> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), "Отсутствует интернет соединение", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
+    }
+    public void addViewToNews(String idNews)
+    {
+        NewsTeeApiInterface nApi = FactoryApi.getInstance(getApplicationContext());
+        Call<DataPost> call = nApi.addViewToNews(idNews);
+        call.enqueue(new Callback<DataPost>() {
+            @Override
+            public void onResponse(Call<DataPost> call, Response<DataPost> response) {
+                if (response.body().getResult().equals(Constants.RESULT_SUCCESS)) {
+
+                } else {
+                    Toast.makeText(getApplicationContext(), response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DataPost> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), t.getMessage(), Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     //playback methods

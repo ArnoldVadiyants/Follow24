@@ -158,8 +158,9 @@ public class RegisterActivity extends Activity {
                                     User data = response.body().getData();;
                                     db.addUser(data.getId(),data.getUserLogin(), email, password,null, null);
                                     UserLab.getInstance().setUser(data);
+                                    new SessionManager(RegisterActivity.this).setCountrySettings(data.getLanguage());
                                     UserLab.isLogin = true;
-                                    UserLab.getInstance().setIsUpdated(false);
+                                    UserLab.getInstance().setUpdated(false);
                                     hideDialog();
                                     session.setLogin(true);
                                 Intent intent = new Intent(

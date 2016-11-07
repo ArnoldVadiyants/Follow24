@@ -6,13 +6,14 @@ package com.newstee.model.data;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.newstee.IRVItem;
 
 import java.util.ArrayList;
 
 import javax.annotation.Generated;
 
 @Generated("org.jsonschema2pojo")
-public class News {
+public class News implements IRVItem{
     @SerializedName("id")
     @Expose
     private String id;

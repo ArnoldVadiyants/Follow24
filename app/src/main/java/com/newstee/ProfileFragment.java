@@ -1,5 +1,6 @@
 package com.newstee;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -7,6 +8,8 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,9 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.newstee.helper.InternetHelper;
@@ -27,11 +28,8 @@ import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.User;
 import com.newstee.model.data.UserLab;
-import com.newstee.utils.CircleTransform;
 import com.newstee.utils.DisplayImageLoaderOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
 import java.util.HashMap;
 
@@ -40,21 +38,23 @@ import java.util.HashMap;
  */
 public class ProfileFragment extends Fragment  {
     private static final String TAG = "ProfileFragment";
-    private ProfileListFragment mProfileListFragment;
-    private Button editButton;
+    private CatalogListFragment2 mCatalogListFragment2;
+   // private Button editButton;
+    private FloatingActionButton editButton;
+
     private SessionManager session;
     private SQLiteHandler db;
     private boolean update = false;
 
 
 ImageLoader imageLoader = ImageLoader.getInstance();
-    LinearLayout profileInfo;
+ //   LinearLayout profileInfo;
     ImageView backgroundImgView;
     ImageView avatarImgView;
     TextView usernameTitle;
-    TextView name;
-    TextView likes;
-    TextView subscribes;
+  //  TextView name;
+  //  TextView likes;
+ //   TextView subscribes;
     ViewPager mViewPager;
 
     TabLayout mTabLayout;
@@ -67,7 +67,7 @@ ImageLoader imageLoader = ImageLoader.getInstance();
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        mProfileListFragment = new ProfileListFragment();
+        mCatalogListFragment2 = CatalogListFragment2.newInstance(Constants.ARGUMENT_ADDED_TAGS);
         session = new SessionManager(getActivity());
         db = new SQLiteHandler(getActivity());
     }
@@ -78,7 +78,7 @@ ImageLoader imageLoader = ImageLoader.getInstance();
     // private ViewPager mViewPager;
 public void update()
 {
-    if(mViewPager ==null)
+    if(mViewPager == null)
     {
         return;
     }
@@ -86,42 +86,39 @@ public void update()
         mViewPager.setAdapter(mProfilePagerAdapter);
         mViewPager.setCurrentItem(0);
         mTabLayout.setupWithViewPager(mViewPager);
-        if(mProfilePagerAdapter == null)
+        if(mProfilePagerAdapter != null)
         {
             mProfilePagerAdapter.notifyDataSetChanged();
 
         }
+    Bitmap back = EditProfileActivity.getImageFromStorage(getActivity());
+    if(back != null)
+    {
+        backgroundImgView.setImageBitmap(back);
+    }
 
-
-
-
-
-    if(session.isLoggedIn())
-    {profileInfo.setVisibility(View.GONE);
-        editButton.setVisibility(View.VISIBLE);
+    if (session.isLoggedIn()) {
+     //   profileInfo.setVisibility(View.GONE);
         //    name.setText(UserLab.getInstance().getUser().getUserLogin());
         User u = UserLab.getInstance().getUser();
         String name = u.getUserLogin();
-        if(name == null){
+        if (name == null) {
             HashMap<String, String> userData = db.getUserDetails();
             String username = userData.get(SQLiteHandler.KEY_NAME);
-            if(username !=null)
-            {
+            if (username != null) {
                 name = username;
-            }
-            else
-            {
+            } else {
                 name = getString(R.string.tab_profile);
             }
         }
         usernameTitle.setText(name);
-        likes.setText(""+UserLab.getInstance().getLikedNews().size());
-        subscribes.setText(""+UserLab.getInstance().getAddedTags().size());
+      //  likes.setText("" + UserLab.getInstance().getLikedNews().size());
+      //  subscribes.setText("" + UserLab.getInstance().getAddedTags().size());
+
         String avatar = UserLab.getInstance().getUser().getAvatar();
-        if(avatar != null)
-        {
+        if (avatar != null) {
             avatar = InternetHelper.toCorrectLink(avatar);
-            imageLoader.displayImage(avatar,avatarImgView, DisplayImageLoaderOptions.getInstance(), new ImageLoadingListener() {
+            imageLoader.displayImage(avatar, avatarImgView, DisplayImageLoaderOptions.getInstance()/*, new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {
 
@@ -146,16 +143,16 @@ public void update()
                 public void onLoadingCancelled(String imageUri, View view) {
 
                 }
-            });
-            imageLoader.displayImage(avatar,backgroundImgView, DisplayImageLoaderOptions.getInstance());
+            });*/
+            );
+       //     imageLoader.displayImage(avatar, backgroundImgView, DisplayImageLoaderOptions.getInstance());
         }
         Log.d(TAG, "@@@@@@ avatar "+ avatar);
     }
     else
     {
-        usernameTitle.setText(R.string.tab_profile);
-        name.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
+       usernameTitle.setText(R.string.tab_profile);
+    //    name.setVisibility(View.GONE);
     }
 }
 
@@ -166,6 +163,9 @@ public void update()
         if (isVisibleToUser) {
                 showDialog();
             update();
+
+
+
         }
     }
 
@@ -173,6 +173,11 @@ public void update()
     public void onResume() {
         super.onResume();
         update();
+        if(editButton !=null)
+        {
+            editButton.setVisibility(View.INVISIBLE);
+            editButton.show();
+        }
     }
 
     @Override
@@ -182,12 +187,12 @@ public void update()
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_profile, container, false);
-        profileInfo = (LinearLayout)rootView.findViewById(R.id.profile_info_layout);
-        likes = (TextView)rootView.findViewById(R.id.profile_like_count);
-        subscribes = (TextView)rootView.findViewById(R.id.profile_subscribes_count);
-        usernameTitle = (TextView)rootView.findViewById(R.id.profile_username_title);
-        name = (TextView)rootView.findViewById(R.id.profile_name_TextView);
+        View rootView = inflater.inflate(R.layout.fragment_profile_coordinator2, container, false);
+   //     profileInfo = (LinearLayout)rootView.findViewById(R.id.profile_info_layout);
+   //     likes = (TextView)rootView.findViewById(R.id.profile_like_count);
+   //     subscribes = (TextView)rootView.findViewById(R.id.profile_subscribes_count);
+       usernameTitle = (TextView)rootView.findViewById(R.id.profile_username_title);
+      //  name = (TextView)rootView.findViewById(R.id.profile_name_TextView);
         backgroundImgView= (ImageView)rootView.findViewById(R.id.profile_background_imageView);
         avatarImgView = (ImageView)rootView.findViewById(R.id.profile_avatar_imageView);
       //  mProfilePagerAdapter = new ProfilePagerAdapter(getChildFragmentManager());
@@ -203,12 +208,20 @@ public void update()
                 o.inPurgeable=true;
                 avatarImgView.setImageBitmap(new CircleTransform().transform(BitmapFactory.decodeResource(getResources(), R.drawable.avatar_test, o)));
                */
-        editButton = (Button) rootView.findViewById(R.id.profile_edit_btn);
+  //      editButton = (Button) rootView.findViewById(R.id.profile_edit_btn);
+        editButton = (FloatingActionButton) rootView.findViewById(R.id.profile_edit_btn);
+
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().startActivity(new Intent(getContext(), EditProfileActivity.class));
-
+                if(session.isLoggedIn())
+                {
+                    getActivity().startActivity(new Intent(getContext(), EditProfileActivity.class));
+                }
+else
+                {
+                    Snackbar.make(mViewPager,R.string.msg_auth_pls,Snackbar.LENGTH_SHORT).show();
+                }
                     }
         });
        // mProfilePagerAdapter = new ProfilePagerAdapter(getChildFragmentManager());
@@ -278,19 +291,28 @@ public void update()
     }
     private boolean isFirstTime()
     {
-        SharedPreferences preferences = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+        if(getActivity() == null)
+        {
+            Log.e(TAG,"@@@@ getActivity = null");
+            return false;
+        }
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         boolean ranBefore = preferences.getBoolean("RanBeforeProfile", false);
         if (!ranBefore) {
             // first time
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("RanBeforeProfile", true);
-            editor.commit();
+            editor.apply();
         }
         return !ranBefore;
     }
 
-    public void updatePager() {
+    public void updatePager() throws IllegalStateException {
         mProfilePagerAdapter = new ProfilePagerAdapter(getChildFragmentManager());
+        if(mViewPager == null)
+        {
+            return;
+        }
         mViewPager.setAdapter(mProfilePagerAdapter);
         mViewPager.setCurrentItem(0);
         mTabLayout.setupWithViewPager(mViewPager);
@@ -337,7 +359,7 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
         switch (position) {
             case 0:
-                return mProfileListFragment;
+                return mCatalogListFragment2;
             case 1:
                 return MyPlaylistListFragment.newInstance(Constants.ARGUMENT_NEWS_LIKED,Constants.CATEGORY_ALL);
         }

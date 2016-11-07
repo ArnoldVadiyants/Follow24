@@ -1,8 +1,8 @@
 package com.newstee;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
@@ -10,7 +10,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
+import com.newstee.helper.InternetHelper;
 import com.newstee.helper.NewsTeeInstructionsDialogFragment;
 
 /**
@@ -40,13 +42,18 @@ public class CatalogFragment extends Fragment {
     }
     private boolean isFirstTime()
     {
-        SharedPreferences preferences = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+        if(getActivity() == null)
+        {
+            Log.e(TAG,"@@@@ getActivity = null");
+            return false;
+        }
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         boolean ranBefore = preferences.getBoolean("RanBeforeCatalog", false);
         if (!ranBefore) {
             // first time
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("RanBeforeCatalog", true);
-            editor.commit();
+            editor.apply();
         }
         return !ranBefore;
     }
@@ -107,6 +114,13 @@ public class CatalogFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_catalog, container, false);
+        ImageView adView = (ImageView)rootView.findViewById(R.id.catalog_ad_container);
+        adView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InternetHelper.goToDeveloperSite(getActivity());
+            }
+        });
       //  mediaPlayer = rootView.findViewById(R.id.catalog_media_player);
        // mpBtnPlay = (ImageButton) mediaPlayer.findViewById(R.id.media_player_small_play_button);
         /*mpBtnPlay.setOnClickListener(new View.OnClickListener() {
@@ -133,14 +147,20 @@ public class CatalogFragment extends Fragment {
        /* mpTitle = (TextView) mediaPlayer.findViewById(R.id.media_player_small_titlet_TextView);
 mediaPlayer.setVisibility(View.GONE);
 */
-        new Handler().post(new Runnable() {
+        FragmentManager fm = getChildFragmentManager();
+        // Fragment fragment = CatalogListFragment.newInstance(false);
+        Fragment fragment = new CatalogListFragment2();
+        fm.beginTransaction().replace(R.id.catalog_container, fragment)
+                .commit();
+    /*    new Handler().post(new Runnable() {
             public void run() {
                 FragmentManager fm = getActivity().getSupportFragmentManager();
-                Fragment fragment = CatalogListFragment.newInstance(false);
+               // Fragment fragment = CatalogListFragment.newInstance(false);
+                Fragment fragment = new CatalogListFragment2();
                 fm.beginTransaction().replace(R.id.catalog_container, fragment)
                         .commit();
             }
-        });
+        });*/
 
        /* CatalogPagerAdapter mCatalogPagerAdapter = new CatalogPagerAdapter(getChildFragmentManager());
         // Set up the ViewPager with the sections adapter.

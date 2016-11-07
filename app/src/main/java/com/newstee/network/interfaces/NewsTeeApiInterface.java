@@ -46,11 +46,15 @@ public interface NewsTeeApiInterface {
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
-    Call<DataNews> getNewsByType(@Field("category") String category, @Field("maxPerPage") int maxPerPage, @Field("page") int page,@Nullable @Field("country")String country);
+    Call<DataNews> getNewsByType(@Field("category") String category, @Field("maxPerPage") int maxPerPage, @Field("page") int page/*,@Nullable @Field("country")String country*/);
+
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=add_view_to_news")
+    Call<DataPost> addViewToNews(@Field("id") String id);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
-    Call<DataNews> getNewsByTag(@Field("idtags") String idTags, @Field("maxPerPage") int maxPerPage, @Field("page") int page,@Nullable @Field("country")String country);
+    Call<DataNews> getNewsByTag(@Field("idtags") String idTags, @Field("maxPerPage") int maxPerPage, @Field("page") int page/*,@Nullable @Field("country")String country*/);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
@@ -62,11 +66,11 @@ public interface NewsTeeApiInterface {
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
-    Call<DataNews> getNewsByAuthor(@Field("id_author") String id,@Nullable @Field("country")String country);
+    Call<DataNews> getNewsByAuthor(@Field("id_author") String id/*,@Nullable @Field("country")String country*/);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_news")
-    Call<DataNews> getNewsByStory(@Field("idstory") String id,@Nullable @Field("country")String country);
+    Call<DataNews> getNewsByStory(@Field("idstory") String id/*,@Nullable @Field("country")String country*/);
 
     @FormUrlEncoded
     @POST("dispatcher.php?command=get_comment")
@@ -131,8 +135,11 @@ public interface NewsTeeApiInterface {
 
     @Multipart
     @POST("dispatcher.php?command=update_user")
-    Call<DataUpdateUser> update_user(@Part("username") RequestBody username, @Part("email") RequestBody email, @Part("avatar\"; filename=\"pp.png\"") RequestBody avatar);
+    Call<DataUpdateUser> update_user(@Nullable@Part("username") RequestBody username,@Nullable @Part("email") RequestBody email, @Nullable@Part("avatar\"; filename=\"pp.png\"") RequestBody avatar);
 
+    @FormUrlEncoded
+    @POST("dispatcher.php?command=update_user")
+    Call<DataUpdateUser> update_user(@Field("language")String language);
 
     //  @GET("your_endpoint") Call<YOUR_POJO> getWeather(@Query("from") String from);
 

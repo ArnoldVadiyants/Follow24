@@ -39,14 +39,13 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"/>
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"
             android:id="@+id/edit_profile_avatar_imgView"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:scaleType="fitXY"
             android:src="@drawable/profile_image"/>
     </RelativeLayout>
 
@@ -60,7 +59,7 @@
         android:layout_height="50dp"
         android:paddingLeft="@dimen/outer_margin_big"
         android:paddingRight="@dimen/outer_margin_big"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <TextView
             android:layout_width="wrap_content"
@@ -80,14 +79,14 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:scaleType="centerCrop"
-            />
+            android:src="@drawable/profile_back"/>
     </RelativeLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#FFDDDDDD"
-        android:visibility="gone"/>
+        android:visibility="visible"/>
 
 
 

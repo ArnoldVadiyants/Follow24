@@ -135,7 +135,15 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/media_controller_new_content_textView"
                 android:layout_marginTop="@dimen/outer_margin"
-                android:layout_marginLeft="-8dp"/>
+                android:layout_marginLeft="-8dp"
+                android:layout_marginBottom="@dimen/outer_margin_big"/>
+            <ImageView
+                android:id="@+id/media_controller_ad_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/ad_size"
+                android:visibility="visible"
+                android:src="@drawable/banner"
+                android:scaleType="centerInside"/>
         </LinearLayout>
     </ScrollView>
 

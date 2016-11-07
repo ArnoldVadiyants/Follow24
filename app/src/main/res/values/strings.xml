@@ -30,7 +30,10 @@
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="description">Descr</string>
     <string name="msg_error">Произошла ошибка</string>
+    <string name="summary_country_pref">Выберите страну в которой Вы находитесь, от этого будет зависеть список изданий</string>
     <string name="text_no_comment">Произошла ошибка</string>
+    <string name="msg_registered_for_edited">Зарегистрируйтесь для редактирования</string>
+    <string name="msg_select_country">Зарегистрируйтесь для выбора другой страны</string>
     <string name="check_internet_con">Невозможно подключиться. Пожалуйста,проверьте параметры подключения к интернету</string>
     <string name="empty_my_catalog">Вы не подписаны ни на одну категорию.</string>
     <string name="empty_my_play_list">Ваш плейлист пуст. Чтобы заполнить его подпишитесь на интересующие вас категории или добавьте новости из потока. </string>
@@ -90,6 +93,7 @@
     <string name="btn_link_to_login">Already registered! Login Me.</string>
     <string name="welcome">Welcome</string>
     <string name="btn_logout">Выйти</string>
+    <string name="msg_auth_pls">Пожалуйста, авторизуйтесь</string>
     <string-array name="listArray">
         <item>Автоматически определять</item>
         <item>Россия</item>

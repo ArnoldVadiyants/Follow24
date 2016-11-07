@@ -31,5 +31,6 @@
     <dimen name="fab_rise">3dp</dimen>
     <dimen name="ad_size">100dp</dimen>
     <integer name="fab_duration">100</integer>
+    <dimen name="image_final_width">32dp</dimen>
 
 </resources>

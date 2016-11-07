@@ -1,6 +1,8 @@
 package com.newstee;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -24,14 +26,20 @@ import android.widget.Toast;
 import com.newstee.helper.InternetHelper;
 import com.newstee.helper.SQLiteHandler;
 import com.newstee.model.data.DataUpdateUser;
+import com.newstee.model.data.User;
 import com.newstee.model.data.UserLab;
 import com.newstee.network.FactoryApi;
 import com.newstee.utils.DisplayImageLoaderOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Date;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import retrofit2.Call;
@@ -44,12 +52,13 @@ import retrofit2.Response;
 public class EditProfileActivity extends AppCompatActivity{
     private static final int SELECT_PICTURE = 1;
 private static final String TAG = "EditProfileActivity";
-    private String selectedImagePath="";
+    private String selectedAvatarPath="";
     private String imgPath;
+    private ImageType imageType = ImageType.Avatar;
     private byte[]bytes;
     private SQLiteHandler db;
     ImageLoader imageLoader = ImageLoader.getInstance();
-ImageView avatarImgView;
+CircleImageView avatarImgView;
     ImageView backgroundImgView;
     EditText nameEditText;
     Button saveBtn;
@@ -60,10 +69,11 @@ ImageView avatarImgView;
         setTitle(R.string.edit_profile);
         setContentView(R.layout.edit_profile_layout);
         db = new SQLiteHandler(this);
-        avatarImgView = (ImageView)findViewById(R.id.edit_profile_avatar_imgView);
+        avatarImgView = (CircleImageView) findViewById(R.id.edit_profile_avatar_imgView);
         avatarImgView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imageType = ImageType.Avatar;
                 selectImage();
                 /*final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
@@ -78,6 +88,8 @@ ImageView avatarImgView;
 
             @Override
                 public void onClick(View v) {
+                imageType = ImageType.Background;
+                selectImage();
       /*              final Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, setImageUri());
                     startActivityForResult(intent, CAPTURE_IMAGE);*/
@@ -99,15 +111,18 @@ ImageView avatarImgView;
                 startActivityForResult(Intent.createChooser(intent,"Select Picture"), SELECT_PICTURE);
             }
         });*/
-
+        Bitmap back = getImageFromStorage(this);
+        if(back != null)
+        {
+            backgroundImgView.setImageBitmap(back);
+        }
         nameEditText = (EditText)findViewById(R.id.edit_profile_name_editText);
         nameEditText.setText( UserLab.getInstance().getUser().getUserLogin());
         String avatar = UserLab.getInstance().getUser().getAvatar();
         if(avatar != null)
         {
             avatar = InternetHelper.toCorrectLink(avatar);
-            imageLoader.displayImage(avatar, avatarImgView, DisplayImageLoaderOptions.getRoundedInstance());
-            imageLoader.displayImage(avatar,backgroundImgView, DisplayImageLoaderOptions.getInstance());
+            imageLoader.displayImage(avatar, avatarImgView, DisplayImageLoaderOptions.getInstance());
 
         }
         saveBtn = (Button)findViewById(R.id.edit_profile_save_button);
@@ -115,7 +130,7 @@ ImageView avatarImgView;
             @Override
             public void onClick(View v) {
 
-updateUser(nameEditText.getText().toString(),null,selectedImagePath);
+updateUser(nameEditText.getText().toString(),null);
                 // create RequestBody instance from file
 
 
@@ -139,17 +154,17 @@ updateUser(nameEditText.getText().toString(),null,selectedImagePath);
         return imgPath;
     }
 
-public boolean updateUser(@Nullable final String name,@Nullable final String email,@Nullable String imagePath )
+public boolean updateUser(@Nullable final String name,@Nullable final String email)
 {
     final boolean[] result = {false};
-    if(name == null && email == null && imagePath == null )
+    if((name == null ||name.isEmpty())&&(email == null ||email.isEmpty())&&(selectedAvatarPath == null ||selectedAvatarPath.isEmpty()) )
     {
         return false;
     }
     RequestBody fbody = null;
-    if(!selectedImagePath.equals(""))
+    if(!selectedAvatarPath.isEmpty())
     {
-        File file = new File(selectedImagePath);
+        File file = new File(selectedAvatarPath);
         fbody = RequestBody.create(MediaType.parse("image/*"), file);
     }
     // fbody = RequestBody.create(MediaType.parse("image/*"),bytes );
@@ -161,10 +176,11 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
 
             if(response.body().getResult().equals(Constants.RESULT_SUCCESS))
             {
-                UserLab.getInstance().getUser().setAvatar(response.body().getData().getAvatar());
-                UserLab.getInstance().getUser().setUserEmail(response.body().getData().getEmail());
-                UserLab.getInstance().getUser().setUserLogin(response.body().getData().getUsername());
-                db.updateUser(name, email);
+               User u =  UserLab.getInstance().getUser();
+                u.setAvatar(response.body().getData().getAvatar());
+                u.setUserEmail(response.body().getData().getEmail());
+                u.setUserLogin(response.body().getData().getUsername());
+                db.updateUser(u.getId(), name, email);
                 Toast.makeText(getApplicationContext(), R.string.update_data_success, Toast.LENGTH_LONG).show();
                 result[0] =  true;
 
@@ -193,6 +209,7 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode != Activity.RESULT_CANCELED) {
             Bitmap yourSelectedImage = null;
+            String selectedImagePath = "";
             if (requestCode == PICK_IMAGE) {
                 if(data == null)
                 {
@@ -273,8 +290,18 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
             {
                 return;
             }
-            Bitmap profileBitmap  = Bitmap.createScaledBitmap(yourSelectedImage, 120, 120, false);
-            avatarImgView.setImageBitmap(profileBitmap);
+
+            if(imageType.equals(ImageType.Avatar))
+            {
+                selectedAvatarPath = selectedImagePath;
+                Bitmap profileBitmap  = Bitmap.createScaledBitmap(yourSelectedImage, 120, 120, false);
+                avatarImgView.setImageBitmap(profileBitmap);
+            }
+            else  if(imageType.equals(ImageType.Background))
+            {
+                backgroundImgView.setImageBitmap(yourSelectedImage);
+                saveToInternalStorage(yourSelectedImage);
+            }
         }
 
     }
@@ -331,7 +358,47 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
         });
         builder.show();
     }
+    public static Bitmap getImageFromStorage(Context context)
+    {
 
+        try {
+            ContextWrapper cw = new ContextWrapper(context);
+            File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+            File f=new File(directory, "profile.jpg");
+            Bitmap b = BitmapFactory.decodeStream(new FileInputStream(f));
+            return b;
+        }
+        catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+            return null;
+
+        }
+
+    }
+    private String saveToInternalStorage(Bitmap bitmapImage){
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+        File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
+        // Create imageDir
+        File mypath=new File(directory,"profile.jpg");
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(mypath);
+            // Use the compress method on the BitMap object to write image to the OutputStream
+            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return directory.getAbsolutePath();
+    }
 
     public Bitmap decodeFile(String path) {
         try {
@@ -408,5 +475,5 @@ public boolean updateUser(@Nullable final String name,@Nullable final String ema
 
         return(super.onOptionsItemSelected(item));
     }
-
+enum ImageType {Avatar, Background}
 }

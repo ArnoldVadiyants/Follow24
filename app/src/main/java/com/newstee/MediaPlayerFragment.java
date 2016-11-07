@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -695,6 +696,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     private ImageButton btnShare;
     private ImageButton btnComment;
     private ImageView songImageView;
+    private ImageView adContainerImageView;
     private SeekBar songProgressBar;
     private SeekBar volumeSeekBar;
     private TextView newsDate;
@@ -716,7 +718,7 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     private boolean musicBound=false;
     //controller
 
-
+    CoordinatorLayout.Behavior behavior;
 
 
 
@@ -777,10 +779,21 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
         }
         if(requestCode == PlaylistActivity.REQUEST_CODE)
         {
-            if (data == null) {return;}
+            Log.d(TAG, "******Result*****");
+            if (data == null) {
+                Log.d(TAG, "****** data = null *****");
+
+                return;
+            }
+            Log.d(TAG, "****** data != null *****");
             boolean exit = data.getBooleanExtra(PlaylistActivity.DATA_EXTRA_EXIT, false);
             if (exit) {
                 getActivity().finish();
+            }
+            String newsId = data.getStringExtra(PlaylistActivity.DATA_EXTRA_NEWS_ID);
+            if(newsId !=null)
+            {
+                playSong(newsId);
             }
         }
     }
@@ -811,11 +824,18 @@ public class MediaPlayerFragment extends Fragment implements  SeekBar.OnSeekBarC
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "******onCreateView*****");
         //retrieve catalogue view
-        View root = inflater.inflate(R.layout.media_conroller,container, false );
+        View root = inflater.inflate(R.layout.media_conroller_coordinator,container, false );
         btnPlay = (ImageButton) root.findViewById(R.id.pause);
         btnLike = (ImageButton)root.findViewById(R.id.like_imageButton);
        btnShare = (ImageButton)root.findViewById(R.id.share_imageButton);
         btnComment = (ImageButton)root.findViewById(R.id.comment_imageButton);
+        adContainerImageView = (ImageView)root.findViewById(R.id.media_controller_ad_container);
+        adContainerImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                InternetHelper.goToDeveloperSite(getActivity());
+            }
+        });
     //    btnForward = (ImageButton) root.findViewById(R.id.ffwd);
     //    btnBackward = (ImageButton) root.findViewById(R.id.rew);
         btnNext = (ImageButton) root.findViewById(R.id.next);
@@ -1573,7 +1593,7 @@ btnLike.setOnClickListener(new View.OnClickListener() {
         }
     };
     private String getHtmlData(String bodyHTML) {
-        String head = "<head><style>img{max-width: 100%; width:auto; height: auto;}</style></head>";
+        String head = "<head><style>img{max-width: 100%;max-height: 100%;object-fit: contain;}</style></head>";
         return "<html>" + head + "<body>" + bodyHTML + "</body></html>";
     }
     String correctHtml(String html)

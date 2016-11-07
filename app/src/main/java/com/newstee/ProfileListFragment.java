@@ -54,7 +54,7 @@ public class ProfileListFragment extends ListFragment
 	}
 	@Override
 	public void onAttach(Context context) {
-		//  super.onAttach(context);
+		  super.onAttach(context);
 		Log.d(TAG, "onAttach");
 		Activity a;
 		if(context instanceof Activity)

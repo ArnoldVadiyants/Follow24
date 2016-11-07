@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +26,11 @@ import java.util.List;
  * Created by Arnold on 23.02.2016.
  */
 public class MyPlaylistFragment extends Fragment{
+    private static final String TAG =MyPlaylistFragment.class.getCanonicalName();
 
     public static boolean ifShowMediaPlayer = false;
     private LinearLayout startButton;
-    private PlayListPager mPlayListPager;
+    private PlayListPagerAdapter mPlayLisAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,11 @@ public class MyPlaylistFragment extends Fragment{
     }
     private boolean isFirstTime()
     {
+        if(getActivity() == null)
+        {
+            Log.e(TAG,"@@@@ getActivity = null");
+            return false;
+        }
         SharedPreferences preferences = getActivity().getPreferences(getActivity().MODE_PRIVATE);
         boolean ranBefore = preferences.getBoolean("RanBeforePlayList", false);
         if (!ranBefore) {
@@ -91,10 +98,10 @@ public class MyPlaylistFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_my_playlist, container, false);
-        mPlayListPager = new PlayListPager(getChildFragmentManager());
+        mPlayLisAdapter = new PlayListPagerAdapter(getChildFragmentManager());
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager)rootView.findViewById(R.id.my_playlist_container);
-        mViewPager.setAdapter(mPlayListPager);
+        mViewPager.setAdapter(mPlayLisAdapter);
         mViewPager.setCurrentItem(0);
         TabLayout tabLayout = (TabLayout)rootView.findViewById(R.id.my_playlist_tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -181,9 +188,9 @@ public class MyPlaylistFragment extends Fragment{
 */
         return rootView;
     }
-    public class PlayListPager extends FragmentPagerAdapter {
+    public class PlayListPagerAdapter extends FragmentPagerAdapter {
 
-        public PlayListPager(FragmentManager fm) {
+        public PlayListPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 

@@ -23,6 +23,7 @@ public class PlayList {
         this.mArgument = mArgument;
     }
 
+
     private String mListTitle = "";
     private News mCurrent;
 

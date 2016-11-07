@@ -10,12 +10,11 @@ import com.newstee.helper.SQLiteHandler;
 import com.newstee.helper.SessionManager;
 import com.newstee.model.data.AuthorLab;
 import com.newstee.model.data.DataAuthor;
-import com.newstee.model.data.DataCountryCode;
 import com.newstee.model.data.DataIds;
 import com.newstee.model.data.DataNews;
 import com.newstee.model.data.DataTag;
+import com.newstee.model.data.DataUpdateUser;
 import com.newstee.model.data.DataUserAuthentication;
-import com.newstee.model.data.IpLab;
 import com.newstee.model.data.NewsLab;
 import com.newstee.model.data.Tag;
 import com.newstee.model.data.TagLab;
@@ -39,7 +38,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
 
 {
     private static final String NOT_NULL_ARGUMENT = ",-999";
-    public static final String[] LoadArguments = {Constants.ARGUMENT_COUNTRY_CODE,Constants.ARGUMENT_AUTHORS, Constants.ARGUMENT_NEWS_ADDED,
+    public static final String[] LoadArguments = {Constants.ARGUMENT_AUTHORS, Constants.ARGUMENT_NEWS_ADDED,
             Constants.ARGUMENT_NEWS_RECENT, Constants.ARGUMENT_NEWS_LIKED,
             Constants.CATEGORY_NEWS,Constants.CATEGORY_ARTICLE,  Constants.CATEGORY_STORY, Constants.ARGUMENT_NEWS_RECOMMENDED, Constants.ARGUMENT_TAGS};
 
@@ -118,6 +117,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
                 if (result.equals(Constants.RESULT_SUCCESS)) {
                     User u = userR.body().getData();;
                     UserLab.getInstance().setUser(u);
+                    new SessionManager(mAppContext).setCountrySettings(u.getLanguage());
                 } else {
                     db.deleteUsers();
                     session.setLogin(false);
@@ -132,7 +132,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
         for (int i = 0; i < LoadArguments.length; i++) {
             update(LoadArguments[i]);
         }
-        UserLab.getInstance().setIsUpdated(true);
+        UserLab.getInstance().setUpdated(true);
     }
 
     private void update(String argument) {
@@ -143,12 +143,10 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
         NewsTeeApiInterface api = FactoryApi.getInstance(mAppContext);
         switch (argument) {
             case Constants.ARGUMENT_COUNTRY_CODE:
-                Call<DataCountryCode> countryC = api.getUserIpData();
+                Call<DataUpdateUser> sentLngC = api.update_user(countryValue);
 
                 try {
-                    Response<DataCountryCode> countryR = countryC.execute();
-                    DataCountryCode dataCountryCode = countryR.body();
-                    IpLab.getInstance().setCountryCode(dataCountryCode.getData().getCountryCode());
+                    Response<DataUpdateUser> sentLngR = sentLngC.execute();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -215,7 +213,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
 
                 if (likedIds != null) {
                     likedIds=likedIds+ NOT_NULL_ARGUMENT;
-                    Call<DataNews> newsByIdC = api.getNewsByIds(likedIds);
+                    Call<DataNews> newsByIdC = api.getNewsByIdsNoSort(likedIds);
                     try {
                         Response<DataNews> newsByIdR = newsByIdC.execute();
                         UserLab.getInstance().setLikedNews(newsByIdR.body().getNews());
@@ -235,7 +233,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
                 }
                 break;*/
             case Constants.CATEGORY_NEWS:
-                Call<DataNews> newNewsC = api.getNewsByType(Constants.CATEGORY_NEWS,NewsListFragment.MAX_PER_PAGE, 0,countryValue);
+                Call<DataNews> newNewsC = api.getNewsByType(Constants.CATEGORY_NEWS,NewsListFragment.MAX_PER_PAGE, 0/*,countryValue*/);
 
                 try {
                     Response<DataNews> newsNewsR = newNewsC.execute();
@@ -245,7 +243,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
                 }
                 break;
             case Constants.CATEGORY_ARTICLE:
-                Call<DataNews> newsArtC = api.getNewsByType(Constants.CATEGORY_ARTICLE,NewsListFragment.MAX_PER_PAGE, 0,countryValue);
+                Call<DataNews> newsArtC = api.getNewsByType(Constants.CATEGORY_ARTICLE,NewsListFragment.MAX_PER_PAGE, 0/*,countryValue*/);
 
                 try {
                     Response<DataNews> newsArtR = newsArtC.execute();
@@ -255,7 +253,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
                 }
                 break;
             case Constants.CATEGORY_STORY:
-                Call<DataNews> newsStC = api.getNewsByType(Constants.CATEGORY_STORY,NewsListFragment.MAX_PER_PAGE, 0,countryValue);
+                Call<DataNews> newsStC = api.getNewsByType(Constants.CATEGORY_STORY,NewsListFragment.MAX_PER_PAGE, 0/*,countryValue*/);
 
                 try {
                     Response<DataNews> newsStR = newsStC.execute();
@@ -486,7 +484,7 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
                 }
             }
             UserLab.getInstance().setAddedTags(addedTags);
-            UserLab.getInstance().setIsUpdated(true);
+            UserLab.getInstance().setUpdated(true);
         }*//*
     }*/
 
@@ -506,10 +504,12 @@ abstract public class MainLoadAsyncTask extends AsyncTask<String, String, Boolea
 
     @Override
     protected Boolean doInBackground(String... params) {
+       boolean isUpdated = UserLab.getInstance().isUpdated();
         int count = params.length;
-        if (count == 0) {
+        if (count == 0 ||(!isUpdated)) {
             update();
-        } else {
+        }
+        else {
             for (int i = 0; i < count; i++)
                 update(params[i]);
         }

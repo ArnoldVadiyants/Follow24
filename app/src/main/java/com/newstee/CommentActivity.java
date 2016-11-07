@@ -80,7 +80,7 @@ private static final String TAG = "CommentActivity";
         setContentView(R.layout.activity_comment);
         mFooter = getLayoutInflater().inflate(R.layout.comment_feed, null);
         mSwipyRefreshLayout = (SwipyRefreshLayout) findViewById(R.id.activity_comment_swipyrefreshlayout);
-        mSwipyRefreshLayout.setColorSchemeColors(R.color.colorAccent,
+        mSwipyRefreshLayout.setColorSchemeResources(R.color.colorAccent,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);

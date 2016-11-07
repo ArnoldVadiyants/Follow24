@@ -392,7 +392,7 @@ public class WelcomeActivity extends AppCompatActivity {
                                         db.addUser(data.getId(),data.getUserLogin(), null, null, SQLiteHandler.KEY_TW_ID, id);
                                         break;
                                 }
-
+                                new SessionManager(getApplicationContext()).setCountrySettings(data.getLanguage());
                                 UserLab.getInstance().setUser(data);
 
                                 UserLab.isLogin = true;

@@ -19,6 +19,7 @@ public class Constants {
     public final static String CATEGORY_STORY = "Story";
     public final static String ARGUMENT_COUNTRY_CODE  = "country_code";
     public final static String ARGUMENT_TAGS  = "tags";
+    public final static String ARGUMENT_ADDED_TAGS  = "added_tags";
     public final static String ARGUMENT_AUTHORS  = "authors";
     public final static String ARGUMENT_NEWS_NONE = "none";
     public final static String ARGUMENT_NEWS_ADDED = "added";
@@ -37,7 +38,7 @@ public class Constants {
     public final static String LINK_TO_DEVELOPER_SITE = "http://initiative.tech/";
     public final static String UKRAINE_VALUE = "ua";
     public final static String RUSSIA_VALUE = "ru";
-    public final static String AUTO_DEFINE_VALUE = "auto";
+    public final static String AUTO_DEFINE_VALUE = "null";
     public final static String TAG_TITLE_UKRAINE = "Украина";
     public final static String TAG_TITLE_RUSSIA = "Россия";
     public final static String[]SCOPE = {VKScope.WALL};

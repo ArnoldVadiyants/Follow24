@@ -6,9 +6,6 @@ package com.newstee.model.data;
 
 import android.content.Context;
 
-import com.newstee.Constants;
-import com.newstee.helper.SessionManager;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +38,9 @@ TagAsyncTask tagAsyncTask = new TagAsyncTask();
         tagAsyncTask.execute();
     }*/
     public List<Tag> getTags(Context context) {
-        List<Tag> tags = new ArrayList<>();
+        return  mTags;
+
+        /*List<Tag> tags = new ArrayList<>();
         tags.addAll(mTags);
         SessionManager manager = new SessionManager(context);
         String country = manager.getCountrySettingsValue();
@@ -62,7 +61,7 @@ TagAsyncTask tagAsyncTask = new TagAsyncTask();
                 tags.remove(tag);
             }
         }
-        return tags;
+        return tags;*/
     }
     public void setTags(List<Tag> tags) {
         this.mTags = tags;

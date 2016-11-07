@@ -6,6 +6,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.newstee.model.data.News;
+
 public class MediaPlayerFragmentActivity extends AppCompatActivity {
 	private  final static String TAG = "MPlayerFragmentActivity";
 	public  final static String ARG_AUDIO_ID = "audio_id";
@@ -25,7 +27,7 @@ private String newsId;
 			newsId = getIntent().getStringExtra(ARG_AUDIO_ID);
 		}
 		Log.d(TAG, "@@@@@ id = " + newsId);
-		createFragment();
+		createFragment(newsId);
 
 	}
 
@@ -33,7 +35,13 @@ private String newsId;
 	protected void onSaveInstanceState(Bundle outState) {
 
 			super.onSaveInstanceState(outState);
-			outState.putString(ARG_AUDIO_ID, PlayList.getInstance().getCurrent().getId());
+		News n = PlayList.getInstance().getCurrent();
+		if(n == null)
+		{
+			Log.e(TAG, "@@@@ current news = null");
+			return;
+		}
+			outState.putString(ARG_AUDIO_ID, n.getId());
 			Log.d(TAG, "onSaveInstanceState");
 
 	}
@@ -44,7 +52,7 @@ private String newsId;
 		createFragment();
 		Log.d(TAG, "onRestoreInstanceState");
 	}*/
-	public void createFragment()
+	public void createFragment(String newsId)
 	{
 		FragmentManager fm = getSupportFragmentManager();
 		Fragment  fragment = MediaPlayerFragment.newInstance(newsId);

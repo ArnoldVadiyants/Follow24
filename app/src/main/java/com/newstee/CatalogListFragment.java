@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -109,9 +109,9 @@ private CatalogListAdapter adapter;
 		public final ImageView imageView;
 		public final TextView title;
 		public final ImageButton addBtn;
-		public final LinearLayout catalogFeed;
+		public final RelativeLayout catalogFeed;
 
-		public ViewHolder(ImageView imageView, TextView title, ImageButton addBtn, LinearLayout catalogFeed) {
+		public ViewHolder(ImageView imageView, TextView title, ImageButton addBtn, RelativeLayout catalogFeed) {
 			this.imageView = imageView;
 			this.title = title;
 			this.addBtn = addBtn;
@@ -137,7 +137,7 @@ private CatalogListAdapter adapter;
 				view = LayoutInflater.from(getContext()).inflate(R.layout.catalog_item_title, parent, false);
 				TextView titleTextView = (TextView)view.findViewById(R.id.title_TextView);
 				ImageView imageView = (ImageView)view.findViewById(R.id.canal_icon_ImageVew);
-				LinearLayout catalogFeed = (LinearLayout)view.findViewById(R.id.catalog_feed);
+				RelativeLayout catalogFeed = (RelativeLayout)view.findViewById(R.id.catalog_feed);
 				ImageButton imageButton =(ImageButton)view.findViewById(R.id.catalog_item_add_ImageButton);
 
 

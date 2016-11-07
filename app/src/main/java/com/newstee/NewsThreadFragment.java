@@ -60,6 +60,7 @@ private NewsThreadListFragment newsFragment;
 
 
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +74,7 @@ private NewsThreadListFragment newsFragment;
        }
 
     }
-    public void showDialog() {
+    public void showDialog() throws IllegalStateException{
         if(!isFirstTime())
         {
            return;
@@ -88,13 +89,18 @@ private NewsThreadListFragment newsFragment;
     }
     private boolean isFirstTime()
     {
-        SharedPreferences preferences = getActivity().getPreferences(getActivity().MODE_PRIVATE);
+        if(getActivity() == null)
+        {
+            Log.e(TAG,"@@@@ getActivity = null");
+            return false;
+        }
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         boolean ranBefore = preferences.getBoolean("RanBeforeThread", false);
         if (!ranBefore) {
             // first time
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("RanBeforeThread", true);
-            editor.commit();
+            editor.apply();
         }
         return !ranBefore;
     }
@@ -429,12 +435,14 @@ private NewsThreadListFragment newsFragment;
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser)
-        {
-
+        if (isVisibleToUser) {
+            try {
                 showDialog();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+            }
 
-            Log.d("@@@@ " + TAG, isVisibleToUser+ "");
+            Log.d("@@@@ " + TAG, "isVisibleToUser");
            /* newsFragment.setUserVisibleHint(true);
             newsFragment.setUserVisibleHint(true);
             newsFragment.setUserVisibleHint(true);*/

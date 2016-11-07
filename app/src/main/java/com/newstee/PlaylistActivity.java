@@ -14,6 +14,8 @@ import android.widget.FrameLayout;
  */
 public class PlaylistActivity extends AppCompatActivity {
     public static final String DATA_EXTRA_EXIT = "exit";
+    public static final String DATA_EXTRA_NEWS_ID = "news_id";
+
     private static final int MENU_ITEM_EXIT_ID = 999;
     public static final int REQUEST_CODE = 111;
     @Override
@@ -48,8 +50,7 @@ public class PlaylistActivity extends AppCompatActivity {
             case MENU_ITEM_EXIT_ID:
                 Intent intent = new Intent();
                 intent.putExtra(DATA_EXTRA_EXIT,true);
-                setResult(RESULT_OK, intent);
-                finish();
+                setResultClick(intent);
                 return(true);
         }
 
@@ -61,6 +62,13 @@ public class PlaylistActivity extends AppCompatActivity {
         menu.add(Menu.NONE, MENU_ITEM_EXIT_ID, Menu.NONE, getString(R.string.btn_exit)).setIcon(R.drawable.exit_image_white).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return true;
     }
+    public void setResultClick(Intent intent)
+    {
+
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
 }
 
 

@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.newstee.Constants;
 import com.newstee.MainActivity;
 import com.newstee.R;
 import com.newstee.helper.InternetHelper;
@@ -101,18 +100,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             return;
         }
       // String settingsCountry  =PreferenceManager.getDefaultSharedPreferences(this).getString("country","2");
-        if(country == null || (!country.equals("2")))
+    /*    if(country == null || (!country.equals("2")))
         {
             String settingsCountry = new SessionManager(getApplicationContext()).getCountrySettingsValue();
 
-            if((country.equals("0")&&settingsCountry.equals(Constants.UKRAINE_VALUE))||(country.equals("1")&&settingsCountry.equals(Constants.RUSSIA_VALUE)))
+            if(country.equals("0")&&settingsCountry.equals(Constants.UKRAINE_VALUE))
             {
                 Log.e(TAG, "@@@@ country not match ");
 
                 return;
             }
+            else if((country.equals("1")&&settingsCountry.equals(Constants.RUSSIA_VALUE)))
+            {
+                Log.e(TAG, "@@@@ country not match ");
+                return;
+            }
         }
-
+*/
 
       /*  while (m.find()) {
             title =m.group(1);

@@ -11,7 +11,7 @@ public class User {
     @SerializedName("id")
     @Expose
     private String id;
-    @SerializedName("login_id")
+    @SerializedName("username")
     @Expose
     private String userLogin;
     @SerializedName("password")
@@ -20,6 +20,11 @@ public class User {
     @SerializedName("email")
     @Expose
     private String userEmail;
+
+
+    @SerializedName("language")
+    @Expose
+    private String language;
     @SerializedName("news_liked_ids")
     @Expose
     private String newsLikedIds;
@@ -242,6 +247,13 @@ public class User {
      */
     public void setUserFacebookid(Object userFacebookid) {
         this.userFacebookid = userFacebookid;
+    }
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
 }

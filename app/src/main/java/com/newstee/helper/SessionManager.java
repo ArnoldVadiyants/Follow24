@@ -3,14 +3,13 @@ package com.newstee.helper;
 
 
     import android.content.Context;
-    import android.content.SharedPreferences;
-    import android.content.SharedPreferences.Editor;
-    import android.preference.PreferenceManager;
-    import android.support.annotation.Nullable;
-    import android.util.Log;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
-    import com.newstee.Constants;
-    import com.newstee.model.data.IpLab;
+import com.newstee.Constants;
 
 public class SessionManager {
 
@@ -79,48 +78,52 @@ public class SessionManager {
         public boolean isCarMode(){
             return pref.getBoolean(KEY_IS_CAR_MODE, false);
         }
+public void setCountrySettings(@Nullable String value)
+{
+    String valueInt;
+    if(value == null)
+    {
+        valueInt = "2";
+    }
+    else if(value.equals(Constants.RUSSIA_VALUE))
+    {
+        valueInt = "0";
+    }
+    else if(value.equals(Constants.UKRAINE_VALUE))
+    {
+        valueInt = "1";
 
+    }
+    else
+    {
+        valueInt = "2";
+
+    }
+    PreferenceManager.getDefaultSharedPreferences(appContext).edit().putString(KEY_COUNTRY,valueInt).commit();
+
+}
+
+    /**
+     *
+     * @return return ru or ua or null or ""
+     */
         @Nullable
         public String getCountrySettings()
         {
           String value=  PreferenceManager.getDefaultSharedPreferences(appContext).getString(KEY_COUNTRY,"2");
-            if(value.equals("0"))
-            {
-                return Constants.RUSSIA_VALUE;
-            }
-            else  if(value.equals("1"))
-            {
-                return Constants.UKRAINE_VALUE;
-            }
-         /*   else  if(value.equals("2"))
-            {
-                return Constants.AUTO_DEFINE_VALUE;
-            }*/
-            else
-            {
-                return null;
+            switch (value) {
+                case "0":
+                    return Constants.RUSSIA_VALUE;
+                case "1":
+                    return Constants.UKRAINE_VALUE;
+                case "2":
+                    return Constants.AUTO_DEFINE_VALUE;
+                default:
+                    return "";
             }
         }
-    public String getCountrySettingsValue()
-    {
-        String value=  PreferenceManager.getDefaultSharedPreferences(appContext).getString(KEY_COUNTRY,"2");
-        if(value.equals("0"))
-        {
-            return Constants.RUSSIA_VALUE;
-        }
-        else  if(value.equals("1"))
-        {
-            return Constants.UKRAINE_VALUE;
-        }
-        else  if(value.equals("2"))
-            {
-                return IpLab.getInstance().getCountryCode();
-            }
-        else
-        {
-            return "";
-        }
-    }
+
+
 
         public void setLogin(boolean isLoggedIn) {
 

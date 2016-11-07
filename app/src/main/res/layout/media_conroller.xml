@@ -95,7 +95,6 @@
                     android:id="@+id/canal_imageView"
                     android:background="@android:color/transparent"
                     android:scaleType="centerCrop"
-                    tools:src="@drawable/test_canal_icon"
                     android:layout_gravity="top"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
@@ -139,7 +138,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/media_controller_new_content_textView"
-                android:layout_marginLeft="-8dp"/>
+                android:layout_marginLeft="-8dp"
+                android:layout_marginBottom="@dimen/outer_margin_big"/>
+            <ImageView
+                android:id="@+id/media_controller_ad_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/ad_size"
+                android:visibility="visible"
+                android:src="@drawable/banner"
+                android:scaleType="centerInside"/>
         </LinearLayout>
     </ScrollView>
 
@@ -148,7 +155,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0"
-        >
+        android:background="@android:color/transparent">
 
         <TextView
             android:id="@+id/curent_time_TextView"

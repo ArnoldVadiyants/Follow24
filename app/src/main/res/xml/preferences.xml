@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
    <ListPreference     android:title="Страна"
-                        android:summary="Выберите страну в которой Вы находитесь, от этого будет зависеть список изданий"
+                        android:summary="@string/summary_country_pref"
                         android:key="country"
                         android:defaultValue="2"
                         android:entries="@array/listArray"

@@ -73,7 +73,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(KEY_ID, id); // Name
+        values.put(KEY_ID, id); // Id
         values.put(KEY_NAME, name); // Name
         values.put(KEY_EMAIL, email); // Email
         values.put(KEY_PASSWORD, password); // Password
@@ -116,7 +116,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     /**
      * Re crate database Delete all tables and create them again
      * */
-    public boolean updateUser(String name, String email) {
+    public boolean updateUser(String id, String name, String email) {
         SQLiteDatabase db = this.getWritableDatabase();
 
       /*  Cursor c = db.query(TABLE_USER, null, null, null, null, null, null);
@@ -124,6 +124,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         if (c.moveToFirst()) {
             rowId = c.getLong(0);
         }*/
+        String where = KEY_ID + "=" + id;
             ContentValues args = new ContentValues();
             if (name != null) {
                 args.put(KEY_NAME, name);
@@ -132,7 +133,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
                 args.put(KEY_EMAIL, email);
             }
 
-        return db.update(TABLE_USER, args,null, null) > 0;
+        return db.update(TABLE_USER, args,where, null) > 0;
     }
     public void deleteUsers() {
         SQLiteDatabase db = this.getWritableDatabase();
